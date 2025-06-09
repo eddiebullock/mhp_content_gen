@@ -60,19 +60,39 @@ const exampleArticle = {
   future_directions: "Emerging research focuses on understanding the diverse presentations of ASD across the lifespan, developing more effective support strategies, and improving access to diagnosis and services [15].",
   references_and_resources: "[1] American Psychiatric Association. (2022). Diagnostic and Statistical Manual of Mental Disorders (5th ed., text rev.)...",
   status: "draft",
-  tags: ["autism", "neurodiversity", "neurodevelopment", "sensory processing", "social communication"]
+  tags: ["autism", "neurodiversity", "neurodevelopment", "sensory processing", "social communication"],
+  key_evidence: "Research indicates that ASD is associated with distinct patterns of brain connectivity and neural processing [8]. Studies have shown that early intervention can lead to significant improvements in communication and social skills [9]. Neuroimaging research has identified differences in brain structure and function, particularly in regions associated with social cognition and sensory processing [7]."
 };
 
 // Helper function to process GPT response
 function processArticleResponse(article) {
-  // Convert arrays to strings for keyEvidence and practicalTakeaways
-  if (Array.isArray(article.keyEvidence)) {
-    article.keyEvidence = article.keyEvidence.join('. ') + '.';
+  console.log(chalk.yellow('\nDebug: Original article format:'));
+  console.log(chalk.yellow('keyEvidence/key_evidence type:', typeof (article.keyEvidence || article.key_evidence), Array.isArray(article.keyEvidence || article.key_evidence) ? '(array)' : ''));
+  console.log(chalk.yellow('practicalTakeaways/practical_takeaways type:', typeof (article.practicalTakeaways || article.practical_takeaways), Array.isArray(article.practicalTakeaways || article.practical_takeaways) ? '(array)' : ''));
+
+  // Handle field name conversion and array to string conversion
+  const processed = { ...article };
+  
+  // Convert camelCase to snake_case and handle arrays
+  if (processed.keyEvidence !== undefined) {
+    processed.key_evidence = Array.isArray(processed.keyEvidence) 
+      ? processed.keyEvidence.join('. ') + '.'
+      : processed.keyEvidence;
+    delete processed.keyEvidence;
   }
-  if (Array.isArray(article.practicalTakeaways)) {
-    article.practicalTakeaways = article.practicalTakeaways.join('. ') + '.';
+  
+  if (processed.practicalTakeaways !== undefined) {
+    processed.practical_takeaways = Array.isArray(processed.practicalTakeaways)
+      ? processed.practicalTakeaways.join('. ') + '.'
+      : processed.practicalTakeaways;
+    delete processed.practicalTakeaways;
   }
-  return article;
+
+  console.log(chalk.yellow('\nDebug: After processing:'));
+  console.log(chalk.yellow('key_evidence type:', typeof processed.key_evidence));
+  console.log(chalk.yellow('practical_takeaways type:', typeof processed.practical_takeaways));
+
+  return processed;
 }
 
 // Helper function to generate GPT prompt based on category
@@ -97,8 +117,9 @@ function generatePrompt(topic, category) {
 - Ensure all required fields contain meaningful content
 
 ## Important Format Requirements
+- Use snake_case for all field names (e.g., practical_takeaways, key_evidence)
 - ALL text fields must be returned as strings, NOT arrays
-- For keyEvidence and practicalTakeaways, combine multiple points into a single cohesive paragraph
+- For key_evidence and practical_takeaways, combine multiple points into a single cohesive paragraph
 - Use proper paragraph formatting with complete sentences
 - Include transitions between ideas
 - Maintain consistent citation style throughout
@@ -116,12 +137,13 @@ ${JSON.stringify(exampleArticle, null, 2)}
 
 # Important Notes
 1. Follow the exact schema structure
-2. Include numerical citations in square brackets [1]
-3. Provide detailed references at the end
-4. Ensure all text fields are comprehensive and well-supported
-5. Use clear, accessible language while maintaining scientific accuracy
-6. ALL text fields must be strings, not arrays
-7. Combine multiple points into cohesive paragraphs`;
+2. Use snake_case for all field names
+3. Include numerical citations in square brackets [1]
+4. Provide detailed references at the end
+5. Ensure all text fields are comprehensive and well-supported
+6. Use clear, accessible language while maintaining scientific accuracy
+7. ALL text fields must be strings, not arrays
+8. Combine multiple points into cohesive paragraphs`;
 
   return basePrompt;
 }
@@ -204,7 +226,7 @@ async function generateArticle(topic, category, model) {
       messages: [
         {
           role: "system",
-          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. Always return text fields as strings, not arrays."
+          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. IMPORTANT: All text fields, including key_evidence and practical_takeaways, must be returned as strings, not arrays. Combine multiple points into cohesive paragraphs."
         },
         {
           role: "user",
@@ -216,6 +238,9 @@ async function generateArticle(topic, category, model) {
     });
 
     const content = completion.choices[0].message.content;
+    console.log(chalk.yellow('\nDebug: Raw GPT response:'));
+    console.log(chalk.yellow(content.substring(0, 200) + '...')); // Log first 200 chars
+
     let article = JSON.parse(content);
 
     // Process the article to handle any array responses
@@ -226,19 +251,33 @@ async function generateArticle(topic, category, model) {
       article.slug = generateSlug(article.title);
     }
 
+    // Log the article before validation
+    console.log(chalk.yellow('\nDebug: Article before validation:'));
+    console.log(chalk.yellow(JSON.stringify({
+      key_evidence: article.key_evidence?.substring(0, 50) + '...',
+      practical_takeaways: article.practical_takeaways?.substring(0, 50) + '...'
+    }, null, 2)));
+
     // Validate the generated article
     const validation = validateArticle(article);
     if (!validation.isValid) {
       console.error(chalk.red('\nValidation errors:'));
       validation.errors.forEach(error => {
         console.error(chalk.red(`- ${error.path.join('.')}: ${error.message}`));
+        // Log the actual value that caused the error
+        console.error(chalk.red(`  Actual value:`, JSON.stringify(error.received)));
       });
       throw new Error('Generated article failed validation');
     }
 
     return article;
   } catch (error) {
-    console.error(chalk.red('\nError generating article:'), error);
+    if (error instanceof SyntaxError) {
+      console.error(chalk.red('\nError parsing GPT response as JSON:'), error);
+      console.error(chalk.red('Raw response:'), content);
+    } else {
+      console.error(chalk.red('\nError generating article:'), error);
+    }
     throw error;
   }
 }

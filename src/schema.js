@@ -24,8 +24,8 @@ const BaseArticleSchema = z.object({
     question: z.string(),
     answer: z.string()
   })).optional(),
-  keyEvidence: z.string().describe('A single string containing key evidence points, formatted as a cohesive paragraph. Do not return as an array.'),
-  practicalTakeaways: z.string().describe('A single string containing practical takeaways, formatted as a cohesive paragraph. Do not return as an array.')
+  key_evidence: z.string().describe('A single string containing key evidence points, formatted as a cohesive paragraph. Do not return as an array.'),
+  practical_takeaways: z.string().describe('A single string containing practical takeaways, formatted as a cohesive paragraph. Do not return as an array.')
 });
 
 // Category-specific schemas
