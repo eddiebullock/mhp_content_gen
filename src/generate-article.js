@@ -64,6 +64,27 @@ const exampleArticle = {
   key_evidence: "Research indicates that ASD is associated with distinct patterns of brain connectivity and neural processing [8]. Studies have shown that early intervention can lead to significant improvements in communication and social skills [9]. Neuroimaging research has identified differences in brain structure and function, particularly in regions associated with social cognition and sensory processing [7]."
 };
 
+// Example psychology article
+const examplePsychologyArticle = {
+  title: "Understanding Cognitive Development",
+  slug: "understanding-cognitive-development",
+  summary: "A comprehensive exploration of cognitive development theories and research, examining how thinking, learning, and problem-solving abilities evolve across the lifespan. This article synthesizes key theories and evidence-based research on cognitive development.",
+  category: "psychology",
+  overview: "Cognitive development refers to the growth and change in intellectual abilities across the lifespan [1]. Research indicates that cognitive development follows both universal patterns and individual variations, influenced by biological, environmental, and social factors [2].",
+  definition: "Cognitive development is the process through which humans acquire, organize, and use knowledge and skills. It encompasses changes in thinking, reasoning, problem-solving, and information processing abilities that occur from infancy through adulthood [3].",
+  core_principles: "Key principles of cognitive development include: the interaction of nature and nurture, the importance of early experiences, and the role of social interaction in learning [4]. Research demonstrates that cognitive development is both continuous and stage-like, with critical periods for certain types of learning [5].",
+  relevance: "Understanding cognitive development is crucial for education, parenting, and mental health practice [6]. Research shows that developmentally appropriate interventions can significantly impact learning outcomes and cognitive abilities [7].",
+  key_studies_and_theories: "Piaget's theory of cognitive development [8] and Vygotsky's sociocultural theory [9] provide foundational frameworks. Recent neuroimaging studies have enhanced our understanding of the neural basis of cognitive development [10].",
+  common_misconceptions: "Common misconceptions include viewing cognitive development as purely biological or assuming all children develop at the same rate. Research indicates significant individual variation in developmental trajectories [11].",
+  practical_applications: "Practical applications include: developmentally appropriate educational strategies, early intervention programs, and cognitive assessment tools. Research supports the effectiveness of these approaches when tailored to individual needs [12].",
+  future_directions: "Emerging research focuses on the role of technology in cognitive development, the impact of environmental factors, and the development of more precise assessment tools [13].",
+  references_and_resources: "[1] Piaget, J. (1952). The origins of intelligence in children...",
+  status: "draft",
+  tags: ["cognitive development", "psychology", "learning", "education", "child development"],
+  key_evidence: "Longitudinal studies demonstrate that early cognitive stimulation significantly impacts later academic achievement [14]. Neuroimaging research has identified critical periods for different types of learning [15]. Meta-analyses of intervention studies show that developmentally appropriate programs can enhance cognitive abilities [16].",
+  practical_takeaways: "Effective approaches to supporting cognitive development include: providing rich learning environments, engaging in interactive activities, and using developmentally appropriate teaching methods. Research emphasizes the importance of individual differences and the role of social interaction in cognitive growth."
+};
+
 // Helper function to process GPT response
 function processArticleResponse(article) {
   console.log(chalk.yellow('\nDebug: Original article format:'));
@@ -95,8 +116,28 @@ function processArticleResponse(article) {
   return processed;
 }
 
+// Helper function to get example article for category
+function getExampleArticle(category) {
+  switch (category) {
+    case 'psychology':
+      return examplePsychologyArticle;
+    case 'neurodiversity':
+      return exampleArticle;
+    default:
+      return exampleArticle; // Default to neurodiversity example
+  }
+}
+
 // Helper function to generate GPT prompt based on category
 function generatePrompt(topic, category) {
+  const exampleArticle = getExampleArticle(category);
+  const schema = getSchemaForCategory(category);
+  
+  // Get required fields for the category
+  const requiredFields = Object.entries(schema.shape)
+    .filter(([_, field]) => !field.isOptional())
+    .map(([name]) => name);
+
   const basePrompt = `Generate a comprehensive, evidence-based article about "${topic}" in the ${category} category.
 
 # Writing Guidelines
@@ -116,6 +157,10 @@ function generatePrompt(topic, category) {
 - Include comprehensive references
 - Ensure all required fields contain meaningful content
 
+## Required Fields for ${category} Articles
+The following fields are REQUIRED and must be included:
+${requiredFields.map(field => `- ${field}`).join('\n')}
+
 ## Important Format Requirements
 - Use snake_case for all field names (e.g., practical_takeaways, key_evidence)
 - ALL text fields must be returned as strings, NOT arrays
@@ -129,21 +174,22 @@ ${getCategorySpecificInstructions(category)}
 
 # Required Schema
 The article must be formatted as a JSON object matching this schema:
-${JSON.stringify(getSchemaForCategory(category).shape, null, 2)}
+${JSON.stringify(schema.shape, null, 2)}
 
 # Example Output
-Here's an example of a well-structured article in the neurodiversity category:
+Here's an example of a well-structured article in the ${category} category:
 ${JSON.stringify(exampleArticle, null, 2)}
 
 # Important Notes
 1. Follow the exact schema structure
 2. Use snake_case for all field names
-3. Include numerical citations in square brackets [1]
-4. Provide detailed references at the end
-5. Ensure all text fields are comprehensive and well-supported
-6. Use clear, accessible language while maintaining scientific accuracy
-7. ALL text fields must be strings, not arrays
-8. Combine multiple points into cohesive paragraphs`;
+3. Include ALL required fields listed above
+4. Include numerical citations in square brackets [1]
+5. Provide detailed references at the end
+6. Ensure all text fields are comprehensive and well-supported
+7. Use clear, accessible language while maintaining scientific accuracy
+8. ALL text fields must be strings, not arrays
+9. Combine multiple points into cohesive paragraphs`;
 
   return basePrompt;
 }
