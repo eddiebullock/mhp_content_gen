@@ -1,0 +1,23 @@
+{
+  "name": "mhp_content_gen",
+  "version": "1.0.0",
+  "description": "CLI tool for generating mental health and psychology article content using GPT",
+  "type": "module",
+  "main": "src/generate-article.js",
+  "scripts": {
+    "start": "node src/generate-article.js",
+    "test": "node src/validate-article.js"
+  },
+  "keywords": ["gpt", "content-generation", "mental-health", "psychology"],
+  "author": "Eddie Bullock",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.0",
+    "commander": "^11.1.0",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1",
+    "chalk": "^5.3.0"
+  }
+} 
