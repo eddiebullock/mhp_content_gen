@@ -42,23 +42,154 @@ function generateSlug(title) {
     .replace(/(^-|-$)/g, '');
 }
 
+// Example article structure for GPT reference
+const exampleArticle = {
+  title: "Understanding Autism Spectrum Disorder",
+  slug: "understanding-autism-spectrum-disorder",
+  summary: "A comprehensive overview of Autism Spectrum Disorder (ASD), including its neurobiological basis, diagnostic criteria, and evidence-based interventions. This article examines current research on ASD's prevalence, mechanisms, and practical approaches to support.",
+  category: "neurodiversity",
+  overview: "Autism Spectrum Disorder (ASD) is a neurodevelopmental condition characterized by differences in social communication and interaction, alongside restricted and repetitive patterns of behavior [1]. Research indicates a prevalence of approximately 1-2% of the population [2], with increasing recognition of the condition's diverse presentation across genders and ages.",
+  neurodiversity_perspective: "The neurodiversity paradigm views ASD as a natural variation in human neurology rather than a disorder requiring 'fixing' [3]. This perspective emphasizes the importance of understanding and accommodating neurological differences while recognizing both challenges and strengths associated with ASD.",
+  common_strengths_and_challenges: "Individuals with ASD often demonstrate exceptional attention to detail, pattern recognition, and deep focus in areas of interest [4]. Common challenges may include sensory processing differences, social communication variations, and executive functioning differences. Research suggests these traits exist on a spectrum, with significant individual variation [5].",
+  prevalence_and_demographics: "Recent epidemiological studies estimate ASD prevalence at 1-2% of the population [2]. Research indicates potential underdiagnosis in females and older adults, with growing recognition of the condition's presentation across different genders and age groups [6].",
+  mechanisms_and_understanding: "Current research suggests ASD involves complex interactions between genetic and environmental factors [7]. Neuroimaging studies indicate differences in brain connectivity and structure, particularly in regions associated with social processing and sensory integration [8].",
+  evidence_summary: "Meta-analyses of intervention studies suggest that early behavioral interventions can improve outcomes in communication and adaptive skills [9]. However, research emphasizes the importance of individualized approaches that respect neurodiversity principles [10].",
+  common_misconceptions: "Common misconceptions include viewing ASD as a childhood condition that can be 'outgrown,' or assuming all individuals with ASD have exceptional savant abilities. Research indicates ASD is a lifelong condition with diverse presentations [11].",
+  practical_takeaways: "Effective support strategies include: creating sensory-friendly environments, using clear communication methods, and implementing structured routines. Research supports the effectiveness of these approaches when tailored to individual needs [12].",
+  lived_experience: "Autistic individuals report that understanding and acceptance from others significantly impacts their well-being [13]. Research emphasizes the importance of including autistic voices in research and support planning [14].",
+  future_directions: "Emerging research focuses on understanding the diverse presentations of ASD across the lifespan, developing more effective support strategies, and improving access to diagnosis and services [15].",
+  references_and_resources: "[1] American Psychiatric Association. (2022). Diagnostic and Statistical Manual of Mental Disorders (5th ed., text rev.)...",
+  status: "draft",
+  tags: ["autism", "neurodiversity", "neurodevelopment", "sensory processing", "social communication"]
+};
+
+// Helper function to process GPT response
+function processArticleResponse(article) {
+  // Convert arrays to strings for keyEvidence and practicalTakeaways
+  if (Array.isArray(article.keyEvidence)) {
+    article.keyEvidence = article.keyEvidence.join('. ') + '.';
+  }
+  if (Array.isArray(article.practicalTakeaways)) {
+    article.practicalTakeaways = article.practicalTakeaways.join('. ') + '.';
+  }
+  return article;
+}
+
 // Helper function to generate GPT prompt based on category
 function generatePrompt(topic, category) {
-  const basePrompt = `Generate a comprehensive article about "${topic}" in the ${category} category. 
-The article should be well-researched, evidence-based, and written in a clear, accessible style.
-Format the response as a JSON object matching the following schema:`;
+  const basePrompt = `Generate a comprehensive, evidence-based article about "${topic}" in the ${category} category.
 
-  const schema = getSchemaForCategory(category);
-  const schemaDescription = JSON.stringify(schema.shape, null, 2);
+# Writing Guidelines
 
-  return `${basePrompt}\n\n${schemaDescription}\n\nImportant guidelines:
-1. All text fields should be detailed and well-written
-2. Include relevant scientific evidence and research
-3. Use clear, accessible language while maintaining scientific accuracy
-4. Include practical takeaways and applications
-5. Address common misconceptions
-6. Provide comprehensive references
-7. Ensure all required fields are filled with meaningful content`;
+## Tone and Style
+- Maintain an objective, impartial, and balanced tone similar to a scientific review
+- Use plain language while maintaining scientific accuracy
+- Avoid hype, sensationalism, or personal opinions
+- Include in-text citations using Vancouver style (numerical references)
+- Back claims with high-quality evidence (meta-analyses, systematic reviews, or reputable studies)
+
+## Content Requirements
+- All text fields must be detailed and well-written
+- Include relevant scientific evidence and research
+- Address common misconceptions
+- Provide practical applications and takeaways
+- Include comprehensive references
+- Ensure all required fields contain meaningful content
+
+## Important Format Requirements
+- ALL text fields must be returned as strings, NOT arrays
+- For keyEvidence and practicalTakeaways, combine multiple points into a single cohesive paragraph
+- Use proper paragraph formatting with complete sentences
+- Include transitions between ideas
+- Maintain consistent citation style throughout
+
+## Category-Specific Instructions
+${getCategorySpecificInstructions(category)}
+
+# Required Schema
+The article must be formatted as a JSON object matching this schema:
+${JSON.stringify(getSchemaForCategory(category).shape, null, 2)}
+
+# Example Output
+Here's an example of a well-structured article in the neurodiversity category:
+${JSON.stringify(exampleArticle, null, 2)}
+
+# Important Notes
+1. Follow the exact schema structure
+2. Include numerical citations in square brackets [1]
+3. Provide detailed references at the end
+4. Ensure all text fields are comprehensive and well-supported
+5. Use clear, accessible language while maintaining scientific accuracy
+6. ALL text fields must be strings, not arrays
+7. Combine multiple points into cohesive paragraphs`;
+
+  return basePrompt;
+}
+
+// Helper function to get category-specific instructions
+function getCategorySpecificInstructions(category) {
+  const instructions = {
+    mental_health: `- Focus on evidence-based understanding of the condition
+- Include prevalence statistics and demographic information
+- Address both biological and psychosocial factors
+- Discuss evidence-based treatment approaches
+- Include information about risk factors and protective factors
+- Address common myths and misconceptions
+- Provide practical strategies for management and support`,
+
+    neuroscience: `- Explain the underlying neural mechanisms
+- Include relevant neuroimaging and neurobiological research
+- Discuss implications for understanding brain function
+- Address both basic science and clinical applications
+- Include information about neuroplasticity where relevant
+- Discuss current research limitations and future directions
+- Provide practical implications for brain health`,
+
+    psychology: `- Focus on psychological theories and research
+- Include key studies and theoretical frameworks
+- Address both cognitive and behavioral aspects
+- Discuss practical applications in daily life
+- Include information about assessment and measurement
+- Address cultural and individual differences
+- Provide evidence-based strategies for application`,
+
+    neurodiversity: `- Emphasize the neurodiversity paradigm
+- Include perspectives from the neurodivergent community
+- Address both strengths and challenges
+- Discuss accommodations and support strategies
+- Include information about diagnosis and identification
+- Address common misconceptions and stereotypes
+- Provide practical approaches for support and inclusion
+- Ensure language is respectful and person-first
+- Include lived experience perspectives
+- Address intersectionality and diverse experiences`,
+
+    interventions: `- Focus on evidence-based interventions
+- Include information about effectiveness and limitations
+- Discuss practical implementation strategies
+- Address potential risks and contraindications
+- Include information about monitoring and evaluation
+- Discuss integration with other approaches
+- Provide clear guidelines for application`,
+
+    lifestyle_factors: `- Focus on modifiable lifestyle factors
+- Include evidence for impact on mental health
+- Discuss practical implementation strategies
+- Address individual differences and preferences
+- Include information about monitoring and evaluation
+- Discuss integration with other approaches
+- Provide clear, actionable recommendations`,
+
+    lab_testing: `- Focus on scientific validity and reliability
+- Include information about interpretation
+- Discuss limitations and appropriate use
+- Address ethical considerations
+- Include information about current research
+- Discuss integration with clinical assessment
+- Provide clear guidelines for application`
+  };
+
+  return instructions[category] || 'Follow general writing guidelines for comprehensive, evidence-based content.';
 }
 
 // Main article generation function
@@ -73,7 +204,7 @@ async function generateArticle(topic, category, model) {
       messages: [
         {
           role: "system",
-          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience."
+          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. Always return text fields as strings, not arrays."
         },
         {
           role: "user",
@@ -85,7 +216,10 @@ async function generateArticle(topic, category, model) {
     });
 
     const content = completion.choices[0].message.content;
-    const article = JSON.parse(content);
+    let article = JSON.parse(content);
+
+    // Process the article to handle any array responses
+    article = processArticleResponse(article);
 
     // Add slug if not provided
     if (!article.slug) {

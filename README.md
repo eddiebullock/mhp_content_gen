@@ -34,7 +34,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 Generate a new article:
 ```bash
-npm start -- --topic "Anxiety Disorders" --category "mental_health"
+npm start -- --topic "Anxiety Disorders" --category "mental_health" --model "gpt-4o-mini"
 ```
 
 Available categories:
