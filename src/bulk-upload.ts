@@ -104,6 +104,41 @@ interface LabTestingArticle extends BaseArticle {
 type Article = MentalHealthArticle | NeuroscienceArticle | PsychologyArticle | 
               NeurodiversityArticle | InterventionArticle | LabTestingArticle;
 
+// List of all possible content fields to be merged into content_blocks
+const ALL_CONTENT_FIELDS = [
+  'overview',
+  'prevalence',
+  'causes_and_mechanisms',
+  'symptoms_and_impact',
+  'evidence_summary',
+  'practical_takeaways',
+  'common_myths',
+  'definition',
+  'mechanisms',
+  'relevance',
+  'key_studies',
+  'key_studies_and_theories',
+  'core_principles',
+  'practical_applications',
+  'practical_implications',
+  'common_misconceptions',
+  'neurodiversity_perspective',
+  'common_strengths_and_challenges',
+  'prevalence_and_demographics',
+  'mechanisms_and_understanding',
+  'lived_experience',
+  'how_it_works',
+  'evidence_base',
+  'effectiveness',
+  'risks_and_limitations',
+  'future_directions',
+  'references_and_resources',
+  'applications',
+  'strengths_and_limitations',
+  'key_evidence',
+  'practical_takeaways'
+];
+
 // Validate article data
 function validateArticle(article: any): boolean {
   const requiredFields = ['title', 'slug', 'summary', 'category'];
@@ -122,7 +157,7 @@ function validateArticle(article: any): boolean {
   return true;
 }
 
-// Transform article based on category
+// Transform article: always merge all content fields into content_blocks
 function transformArticle(article: any) {
   const baseTransformation = {
     title: article.title,
@@ -132,171 +167,49 @@ function transformArticle(article: any) {
     status: article.status || 'draft',
     tags: article.tags || [],
   };
-
-  switch (article.category) {
-    case 'neurodiversity':
-      return {
-        ...baseTransformation,
-        content_blocks: {
-          overview: article.overview,
-          neurodiversity_perspective: article.neurodiversity_perspective,
-          common_strengths_and_challenges: article.common_strengths_and_challenges,
-          prevalence_and_demographics: article.prevalence_and_demographics,
-          mechanisms_and_understanding: article.mechanisms_and_understanding,
-          evidence_summary: article.evidence_summary,
-          common_misconceptions: article.common_misconceptions,
-          practical_takeaways: article.practical_takeaways,
-          lived_experience: article.lived_experience,
-          future_directions: article.future_directions,
-          references_and_resources: article.references_and_resources
-        }
-      };
-
-    case 'mental_health':
-      return {
-        ...baseTransformation,
-        content_blocks: {
-          overview: article.overview,
-          prevalence: article.prevalence,
-          causes_and_mechanisms: article.causes_and_mechanisms,
-          symptoms_and_impact: article.symptoms_and_impact,
-          evidence_summary: article.evidence_summary,
-          practical_takeaways: article.practical_takeaways,
-          common_myths: article.common_myths,
-          future_directions: article.future_directions,
-          references_and_resources: article.references_and_resources,
-          key_evidence: article.key_evidence
-        }
-      };
-
-    case 'psychology':
-      return {
-        ...baseTransformation,
-        content_blocks: {
-          overview: article.overview,
-          definition: article.definition,
-          core_principles: article.core_principles,
-          relevance: article.relevance,
-          key_studies_and_theories: article.key_studies_and_theories,
-          common_misconceptions: article.common_misconceptions,
-          practical_applications: article.practical_applications,
-          future_directions: article.future_directions,
-          references_and_resources: article.references_and_resources,
-          key_evidence: article.key_evidence,
-          practical_takeaways: article.practical_takeaways
-        }
-      };
-
-    case 'neuroscience':
-      return {
-        ...baseTransformation,
-        content_blocks: {
-          overview: article.overview,
-          definition: article.definition,
-          mechanisms: article.mechanisms,
-          relevance: article.relevance,
-          key_studies: article.key_studies,
-          common_misconceptions: article.common_misconceptions,
-          practical_implications: article.practical_implications,
-          future_directions: article.future_directions,
-          references_and_resources: article.references_and_resources,
-          key_evidence: article.key_evidence,
-          practical_takeaways: article.practical_takeaways
-        }
-      };
-
-    default:
-      console.warn(`No specific transformation for category: ${article.category}`);
-      return {
-        ...baseTransformation,
-        content_blocks: {
-          overview: article.overview,
-          future_directions: article.future_directions,
-          references_and_resources: article.references_and_resources,
-          key_evidence: article.key_evidence,
-          practical_takeaways: article.practical_takeaways,
-          ...article
-        }
-      };
+  // Merge all content fields into content_blocks
+  const content_blocks: Record<string, string> = {};
+  for (const field of ALL_CONTENT_FIELDS) {
+    if (article[field]) {
+      content_blocks[field] = article[field];
+    }
   }
+  // If the article already has a content_blocks object, merge it in
+  if (article.content_blocks && typeof article.content_blocks === 'object') {
+    Object.assign(content_blocks, article.content_blocks);
+  }
+  return {
+    ...baseTransformation,
+    content_blocks
+  };
 }
 
-async function main() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing Supabase credentials. Please ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in your .env file');
-    process.exit(1);
+async function bulkUploadArticles() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const articlesData = JSON.parse(fs.readFileSync('articles-data.json', 'utf-8'));
+  let uploaded = 0, failed = 0;
+  for (const article of articlesData) {
+    const transformedArticle = transformArticle(article);
+    if (!validateArticle(transformedArticle)) {
+      console.error('Validation failed for article:', article.title);
+      failed++;
+      continue;
+    }
+    const { error: insertError } = await supabase
+      .from('articles')
+      .upsert(transformedArticle, { onConflict: 'slug' });
+    if (insertError) {
+      console.error('Error upserting article (slug: ' + transformedArticle.slug + '): ', insertError);
+      failed++;
+    } else {
+      console.log('Article ' + transformedArticle.slug + ' upserted.');
+      uploaded++;
+    }
   }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  try {
-    // Load and parse JSON data
-    const filePath = path.join(__dirname, '..', 'articles-data.json');
-    const rawData = fs.readFileSync(filePath, 'utf-8');
-    const articles = JSON.parse(rawData) as Article[];
-
-    if (!Array.isArray(articles)) {
-      throw new Error('Articles data must be an array');
-    }
-
-    console.log(`Found ${articles.length} articles to process`);
-
-    // Process articles in batches
-    const batchSize = 5;
-    const batches: Article[][] = [];
-    
-    for (let i = 0; i < articles.length; i += batchSize) {
-      batches.push(articles.slice(i, i + batchSize));
-    }
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const [batchIndex, batch] of batches.entries()) {
-      console.log(`Processing batch ${batchIndex + 1}/${batches.length}`);
-
-      for (const article of batch) {
-        // Transform article based on its category
-        const transformedArticle = transformArticle(article);
-
-        if (!validateArticle(transformedArticle)) {
-          console.error(`Validation failed for article: ${article.title}`);
-          errorCount++;
-          continue;
-        }
-
-        try {
-          const { error } = await supabase
-            .from('articles')
-            .upsert({
-              id: uuidv4(),
-              ...transformedArticle,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'slug'
-            });
-
-          if (error) throw error;
-          successCount++;
-        } catch (error) {
-          console.error(`Error upserting article ${article.title}:`, error);
-          errorCount++;
-        }
-      }
-    }
-
-    console.log(`\nUpload complete!`);
-    console.log(`Successfully uploaded: ${successCount} articles`);
-    console.log(`Failed to upload: ${errorCount} articles`);
-
-  } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
-  }
+  console.log('Bulk upload completed. Uploaded ' + uploaded + ' article(s) (' + failed + ' failed).');
 }
 
-main().catch(console.error); 
+bulkUploadArticles().catch(console.error); 

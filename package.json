@@ -8,7 +8,8 @@
     "start": "node src/generate-article.js",
     "test": "node src/validate-article.js",
     "verify": "node --loader ts-node/esm scripts/verify-setup.ts",
-    "backfill": "node --loader ts-node/esm scripts/backfill-embeddings.ts"
+    "backfill": "node --loader ts-node/esm scripts/backfill-embeddings.ts",
+    "bulk-upload": "ts-node --esm src/bulk-upload.ts"
   },
   "keywords": [
     "gpt",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.0",
+    "@types/uuid": "^10.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }

@@ -260,6 +260,51 @@ function getCategorySpecificInstructions(category) {
   return instructions[category] || 'Follow general writing guidelines for comprehensive, evidence-based content.';
 }
 
+// Helper function to nest content fields under content_blocks
+function nestContentBlocks(article) {
+  // List of fields that should go inside content_blocks
+  const contentFields = [
+    'overview',
+    'prevalence',
+    'causes_and_mechanisms',
+    'symptoms_and_impact',
+    'evidence_summary',
+    'common_myths',
+    'definition',
+    'mechanisms',
+    'relevance',
+    'key_studies',
+    'key_studies_and_theories',
+    'core_principles',
+    'practical_applications',
+    'practical_implications',
+    'common_misconceptions',
+    'neurodiversity_perspective',
+    'common_strengths_and_challenges',
+    'prevalence_and_demographics',
+    'mechanisms_and_understanding',
+    'lived_experience',
+    'how_it_works',
+    'evidence_base',
+    'effectiveness',
+    'practical_applications',
+    'risks_and_limitations',
+    'future_directions',
+    'references_and_resources'
+  ];
+  const content_blocks = {};
+  const topLevel = {};
+  for (const key in article) {
+    if (contentFields.includes(key)) {
+      content_blocks[key] = article[key];
+    } else {
+      topLevel[key] = article[key];
+    }
+  }
+  topLevel.content_blocks = content_blocks;
+  return topLevel;
+}
+
 // Main article generation function
 async function generateArticle(topic, category, model) {
   console.log(chalk.blue(`\nGenerating article about "${topic}" in category "${category}"...`));
@@ -316,7 +361,10 @@ async function generateArticle(topic, category, model) {
       throw new Error('Generated article failed validation');
     }
 
-    return article;
+    // Nest content fields under content_blocks
+    const dbReadyArticle = nestContentBlocks(article);
+
+    return dbReadyArticle;
   } catch (error) {
     if (error instanceof SyntaxError) {
       console.error(chalk.red('\nError parsing GPT response as JSON:'), error);
