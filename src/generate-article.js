@@ -143,19 +143,22 @@ function generatePrompt(topic, category) {
 # Writing Guidelines
 
 ## Tone and Style
-- Maintain an objective, impartial, and balanced tone similar to a scientific review
-- Use plain language while maintaining scientific accuracy
-- Avoid hype, sensationalism, or personal opinions
+- Write in clear, accessible language that a general audience can understand
+- Explain complex concepts using everyday examples and analogies
+- Avoid jargon - if technical terms are necessary, explain them in simple terms
+- Maintain scientific accuracy while being conversational and engaging
+- Use active voice and shorter sentences for better readability
 - Include in-text citations using Vancouver style (numerical references)
 - Back claims with high-quality evidence (meta-analyses, systematic reviews, or reputable studies)
 
 ## Content Requirements
-- All text fields must be detailed and well-written
-- Include relevant scientific evidence and research
-- Address common misconceptions
-- Provide practical applications and takeaways
-- Include comprehensive references
+- Break down complex ideas into digestible chunks
+- Use real-world examples to illustrate key points
+- Include practical tips and actionable advice
+- Address common misconceptions in simple terms
+- Provide comprehensive references
 - Ensure all required fields contain meaningful content
+- Write as if explaining to a friend who's interested in mental health but not a professional
 
 ## Required Fields for ${category} Articles
 The following fields are REQUIRED and must be included:
@@ -187,9 +190,12 @@ ${JSON.stringify(exampleArticle, null, 2)}
 4. Include numerical citations in square brackets [1]
 5. Provide detailed references at the end
 6. Ensure all text fields are comprehensive and well-supported
-7. Use clear, accessible language while maintaining scientific accuracy
+7. Write in clear, accessible language while maintaining scientific accuracy
 8. ALL text fields must be strings, not arrays
-9. Combine multiple points into cohesive paragraphs`;
+9. Combine multiple points into cohesive paragraphs
+10. Use everyday examples and analogies to explain complex concepts
+11. Avoid unnecessary jargon - explain technical terms when used
+12. Write in a conversational, engaging style that's easy to understand`;
 
   return basePrompt;
 }
@@ -317,7 +323,7 @@ async function generateArticle(topic, category, model) {
       messages: [
         {
           role: "system",
-          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. IMPORTANT: All text fields, including key_evidence and practical_takeaways, must be returned as strings, not arrays. Combine multiple points into cohesive paragraphs."
+          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. Write in clear, conversational language that makes complex concepts easy to understand. Use everyday examples and analogies to explain technical ideas. Avoid unnecessary jargon, and when technical terms are needed, explain them in simple terms. IMPORTANT: All text fields, including key_evidence and practical_takeaways, must be returned as strings, not arrays. Combine multiple points into cohesive paragraphs."
         },
         {
           role: "user",
