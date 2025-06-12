@@ -392,13 +392,15 @@ async function generateArticle(topic, category, model) {
       "key_evidence": "string (bullet points of key research findings)",
       "practical_takeaways": "string (bullet points of practical advice)",
       "references": "string (formatted references in markdown)",
-      "resources": "string (additional resources and links in markdown)"
+      "resources": "string (additional resources and links in markdown)",
+      "category": "${category}"  // Must be one of: mental_health, neuroscience, psychology, brain_health, neurodiversity, interventions, lifestyle_factors, lab_testing
     }
     
     Ensure the content is well-structured with clear headings and subheadings in markdown format.
     The content should be comprehensive but accessible, using clear language and explaining any technical terms.
     Include relevant statistics and research findings where appropriate.
-    Make sure to include both references and resources sections at the end of the content.`;
+    Make sure to include both references and resources sections at the end of the content.
+    IMPORTANT: The category field must be set to "${category}" exactly as provided.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -406,14 +408,13 @@ async function generateArticle(topic, category, model) {
       messages: [
         {
           role: "system",
-          content: "You are an expert content writer specializing in mental health, psychology, and neuroscience. Your task is to generate comprehensive, evidence-based articles that are both scientifically accurate and accessible to a general audience. Write in clear, conversational language that makes complex concepts easy to understand. Use everyday examples and analogies to explain technical ideas. Avoid unnecessary jargon, and when technical terms are needed, explain them in simple terms. IMPORTANT: All text fields, including key_evidence and practical_takeaways, must be returned as strings, not arrays. Combine multiple points into cohesive paragraphs."
+          content: "You are a mental health content expert. Generate well-researched, accurate, and empathetic content about mental health topics. Always include the category field in your response exactly as provided."
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.7,
       response_format: { type: "json_object" }
     });
 
