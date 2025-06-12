@@ -10,7 +10,9 @@
     "verify": "node --loader ts-node/esm scripts/verify-setup.ts",
     "backfill": "node --loader ts-node/esm scripts/backfill-embeddings.ts",
     "bulk-upload": "ts-node --esm src/bulk-upload.ts",
-    "generate-multiple": "node scripts/generate-multiple.js"
+    "generate-multiple": "node scripts/generate-multiple.js",
+    "update-summaries": "node scripts/update-summaries.js",
+    "update-content": "node scripts/update-content.js"
   },
   "keywords": [
     "gpt",

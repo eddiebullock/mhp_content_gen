@@ -193,13 +193,13 @@ async function bulkUploadArticles() {
   let uploaded = 0, failed = 0;
   for (const article of articlesData) {
     const transformedArticle = transformArticle(article);
-    if (!validateArticle(transformedArticle)) {
+        if (!validateArticle(transformedArticle)) {
       console.error('Validation failed for article:', article.title);
       failed++;
-      continue;
-    }
+          continue;
+        }
     const { error: insertError } = await supabase
-      .from('articles')
+            .from('articles')
       .upsert(transformedArticle, { onConflict: 'slug' });
     if (insertError) {
       console.error('Error upserting article (slug: ' + transformedArticle.slug + '): ', insertError);
@@ -210,6 +210,6 @@ async function bulkUploadArticles() {
     }
   }
   console.log('Bulk upload completed. Uploaded ' + uploaded + ' article(s) (' + failed + ' failed).');
-}
+  }
 
 bulkUploadArticles().catch(console.error); 

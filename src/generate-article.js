@@ -142,6 +142,14 @@ function generatePrompt(topic, category) {
 
 # Writing Guidelines
 
+## Summary Requirements
+- Start with a clear, direct definition of the topic
+- Focus on what the condition/topic IS, not what the article will cover
+- Avoid phrases like "This article explores..." or "We discuss..."
+- Keep it concise (2-3 sentences maximum)
+- Use active voice and present tense
+- Example good summary: "Obsessive-Compulsive Disorder (OCD) is a mental health condition characterized by persistent, unwanted thoughts (obsessions) and repetitive behaviors (compulsions). It affects approximately 1-2% of the population and can significantly impact daily functioning and quality of life."
+
 ## Tone and Style
 - Write in clear, accessible language that a general audience can understand
 - Explain complex concepts using everyday examples and analogies

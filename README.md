@@ -54,6 +54,18 @@ Generate multiple articles:
 npm run generate-multiple -- -t "Anxiety Disorders,Depression,OCD" -c "mental_health" -m "gpt-4-turbo-preview"
 ```
 
+Update specific sections of existing articles:
+```bash
+# Update summaries of the last 10 articles
+npm run update-content -- -s summary -c 10
+
+# Update overviews of the last 5 articles
+npm run update-content -- -s overview -c 5
+
+# Update practical takeaways of the last 3 articles
+npm run update-content -- -s practical_takeaways -c 3
+```
+
 Upload articles to database:
 ```bash
 npm run bulk-upload
