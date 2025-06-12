@@ -36,6 +36,7 @@ Generate a new article:
 ```bash
 npm start -- --topic "Anxiety Disorders" --category "mental_health" --model "gpt-4o-mini"
 ```
+npm run generate-multiple -- -t "Anxiety Disorders,Depression,OCD" -c "mental_health" --model "gpt-4o-mini"
 
 Available categories:
 - mental_health
