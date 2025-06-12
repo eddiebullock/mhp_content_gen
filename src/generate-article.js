@@ -324,57 +324,48 @@ function nestContentBlocks(article) {
 async function generateArticle(topic, category, model) {
   console.log(chalk.blue(`\nGenerating article about "${topic}" in category "${category}"...`));
 
-  // Customize the prompt based on category
-  let categorySpecificPrompt = '';
-  let sectionOrder = '';
+  // Get the correct schema for the category
+  const schema = getSchemaForCategory(category);
+  const requiredFields = Object.entries(schema.shape)
+    .filter(([_, field]) => !field.isOptional())
+    .map(([name]) => name);
 
+  // Get category-specific instructions
+  const categorySpecificPrompt = getCategorySpecificInstructions(category);
+
+  // Get section order based on category
+  let sectionOrder = '';
   if (category === 'neurodiversity') {
-    categorySpecificPrompt = `
-      Focus on:
-      - Celebrating neurodivergent strengths and perspectives
-      - Using identity-first language (e.g., "autistic person" rather than "person with autism") unless the individual prefers person-first language
-      - Emphasizing neurodiversity as a natural variation in human neurology
-      - Discussing accommodations and support strategies that respect neurodivergent needs
-      - Highlighting the importance of self-advocacy and community support
-      - Addressing common misconceptions and stereotypes
-      - Including perspectives from the neurodivergent community
-      
-      Important guidelines:
-      - Avoid pathologizing language
-      - Focus on strengths and challenges rather than deficits
-      - Emphasize the value of different neurotypes
-      - Include practical strategies for support and accommodation
-      - Address intersectionality with other identities
-      - Consider sensory needs and processing differences
-      - Discuss the importance of self-advocacy and community support
-    `;
     sectionOrder = `
       Structure the article in this order:
-      1. Introduction
-      2. Understanding the Topic
-      3. Key Characteristics and Experiences
-      4. Strengths and Challenges
-      5. Support and Accommodations
-      6. Practical Strategies
-      7. Community and Advocacy
-      8. Key Evidence
-      9. Practical Takeaways
-      10. References and Resources
+      1. Introduction (overview)
+      2. Neurodiversity Perspective (required)
+      3. Common Strengths and Challenges (required)
+      4. Prevalence and Demographics (required)
+      5. Mechanisms and Understanding (required)
+      6. Evidence Summary
+      7. Common Misconceptions (required)
+      8. Practical Takeaways
+      9. Lived Experience (required)
+      10. References and Resources (required)
     `;
   } else if (category === 'mental_health') {
-    // ... existing mental_health prompt ...
-  } else if (category === 'neuroscience') {
-    // ... existing neuroscience prompt ...
-  } else if (category === 'psychology') {
-    // ... existing psychology prompt ...
-  } else if (category === 'brain_health') {
-    // ... existing brain_health prompt ...
+    sectionOrder = `
+      Structure the article in this order:
+      1. Introduction (overview)
+      2. Evidence Summary
+      3. Practical Takeaways
+      4. References and Resources (required)
+    `;
   } else if (category === 'interventions') {
-    // ... existing interventions prompt ...
-  } else if (category === 'lifestyle_factors') {
-    // ... existing lifestyle_factors prompt ...
-  } else if (category === 'lab_testing') {
-    // ... existing lab_testing prompt ...
+    sectionOrder = `
+      Structure the article in this order:
+      1. Introduction (overview)
+      2. Evidence Summary
+      3. Practical Takeaways
+      4. Future Directions
+      5. References and Resources (required)
+    `;
   }
 
   const prompt = `Generate a comprehensive article about ${topic} in the context of ${category}. 
@@ -383,24 +374,50 @@ async function generateArticle(topic, category, model) {
     
     The article should be informative, evidence-based, and accessible to a general audience.
     Include practical takeaways and key evidence from research.
+
+    # Writing Guidelines
+    ## Summary Requirements
+    - Start with a clear, direct definition of the topic
+    - Focus on what the condition/topic IS, not what the article will cover
+    - Avoid phrases like "This article explores..." or "We discuss..."
+    - Keep it concise (2-3 sentences maximum)
+    - Use active voice and present tense
+    - Include key prevalence or impact information if relevant
+
     Format the response as a JSON object with the following structure:
     {
       "title": "string",
       "slug": "string (URL-friendly version of the title)",
-      "summary": "string (2-3 sentences)",
-      "content": "string (full article content in markdown format)",
-      "key_evidence": "string (bullet points of key research findings)",
-      "practical_takeaways": "string (bullet points of practical advice)",
-      "references": "string (formatted references in markdown)",
-      "resources": "string (additional resources and links in markdown)",
-      "category": "${category}"  // Must be one of: mental_health, neuroscience, psychology, brain_health, neurodiversity, interventions, lifestyle_factors, lab_testing
+      "summary": "string (2-3 sentences, direct definition only)",
+      "category": "${category}",
+      "tags": ["string", "string", "string"] (array of relevant tags, e.g. ["mental health", "psychosis", "treatment"]),
+      "future_directions": "string (emerging research and future developments)",
+      "key_evidence": "string (key research findings and evidence)",
+      "references_and_resources": "string (list of key references, resources, and further reading)",
+      ${requiredFields.filter(field => !['tags', 'future_directions', 'key_evidence', 'references_and_resources'].includes(field)).map(field => `"${field}": "string"`).join(',\n      ')}
     }
     
     Ensure the content is well-structured with clear headings and subheadings in markdown format.
     The content should be comprehensive but accessible, using clear language and explaining any technical terms.
     Include relevant statistics and research findings where appropriate.
-    Make sure to include both references and resources sections at the end of the content.
-    IMPORTANT: The category field must be set to "${category}" exactly as provided.`;
+    IMPORTANT: 
+    1. The category field must be set to "${category}" exactly as provided.
+    2. All fields listed above are required and must be included.
+    3. The tags field MUST be an array of strings, not a single string.
+    4. All text fields must be strings, not arrays.
+    5. The summary must be a direct definition, not a description of what the article covers.
+    6. Follow the section order exactly as specified above.
+    7. For neurodiversity articles, these fields are REQUIRED:
+       - neurodiversity_perspective
+       - common_strengths_and_challenges
+       - prevalence_and_demographics
+       - mechanisms_and_understanding
+       - common_misconceptions
+       - lived_experience
+    8. These base fields are ALWAYS required:
+       - future_directions
+       - key_evidence
+       - references_and_resources`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -408,7 +425,17 @@ async function generateArticle(topic, category, model) {
       messages: [
         {
           role: "system",
-          content: "You are a mental health content expert. Generate well-researched, accurate, and empathetic content about mental health topics. Always include the category field in your response exactly as provided."
+          content: `You are a mental health content expert. Generate well-researched, accurate, and empathetic content about mental health topics. 
+            Always include all required fields in your response exactly as specified in the schema. 
+            Ensure the content is comprehensive and evidence-based.
+            For summaries, always start with a direct definition of the topic, avoiding phrases like "This article explores..." or "We discuss...".
+            Focus on what the condition/topic IS, not what the article will cover.
+            For ${category} articles, make sure to include all required fields: ${requiredFields.join(', ')}.
+            IMPORTANT: 
+            1. The tags field must be an array of strings, not a single string. Example: ["mental health", "psychosis", "treatment"]
+            2. Always include future_directions, key_evidence, and references_and_resources fields
+            3. For neurodiversity articles, include all neurodiversity-specific fields
+            4. For mental health articles, always include references_and_resources with key references and further reading`
         },
         {
           role: "user",
@@ -426,6 +453,13 @@ async function generateArticle(topic, category, model) {
 
     // Process the article to handle any array responses
     article = processArticleResponse(article);
+
+    // Ensure tags is an array
+    if (article.tags && typeof article.tags === 'string') {
+      article.tags = article.tags.split(',').map(tag => tag.trim());
+    } else if (!Array.isArray(article.tags)) {
+      article.tags = [];
+    }
 
     // Add slug if not provided
     if (!article.slug) {

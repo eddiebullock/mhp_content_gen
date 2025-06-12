@@ -12,7 +12,8 @@
     "bulk-upload": "ts-node --esm src/bulk-upload.ts",
     "generate-multiple": "node scripts/generate-multiple.js",
     "update-summaries": "node scripts/update-summaries.js",
-    "update-content": "node scripts/update-content.js"
+    "update-content": "node scripts/update-content.js",
+    "update-db-summaries": "node scripts/update-db-summaries.js"
   },
   "keywords": [
     "gpt",

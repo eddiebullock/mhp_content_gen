@@ -185,10 +185,23 @@ function transformArticle(article: any) {
 }
 
 async function bulkUploadArticles() {
+  // Add debug logging
+  console.log('Debug: Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...');
+  console.log('Debug: Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 10) + '...');
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+
+  // Test the connection
+  const { data, error } = await supabase.from('articles').select('count').limit(1);
+  if (error) {
+    console.error('Debug: Supabase connection test failed:', error);
+    return;
+  }
+  console.log('Debug: Supabase connection test successful');
+
   const articlesData = JSON.parse(fs.readFileSync('articles-data.json', 'utf-8'));
   let uploaded = 0, failed = 0;
   for (const article of articlesData) {
