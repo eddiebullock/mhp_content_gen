@@ -30,6 +30,7 @@ program
   .requiredOption('-c, --category <string>', 'The category of the article')
   .option('-o, --output <string>', 'Output file path', 'articles-data.json')
   .option('-m, --model <string>', 'GPT model to use', 'gpt-4-turbo-preview')
+  .option('--no-clear', 'Skip clearing the output file (used when called from generate-multiple.js)')
   .parse(process.argv);
 
 const options = program.opts();
@@ -403,10 +404,13 @@ async function main() {
       throw new Error(`Invalid category. Must be one of: ${validCategories.join(', ')}`);
     }
 
-    // Clear the output file first
     const filePath = path.join(__dirname, '..', options.output);
-    await fs.writeFile(filePath, '[]');
-    console.log(chalk.blue('\nCleared existing articles from output file.'));
+
+    // Only clear the file if --no-clear is not set
+    if (options.clear !== false) {
+      await fs.writeFile(filePath, '[]');
+      console.log(chalk.blue('\nCleared existing articles from output file.'));
+    }
 
     // Generate the article
     const article = await generateArticle(options.topic, options.category, options.model);
@@ -414,7 +418,7 @@ async function main() {
     // Set status to published by default
     article.status = 'published';
     
-    // Read existing articles (should be empty array after clearing)
+    // Read existing articles
     let articles = [];
     try {
       const existingContent = await fs.readFile(filePath, 'utf-8');
