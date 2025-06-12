@@ -324,9 +324,83 @@ function nestContentBlocks(article) {
 async function generateArticle(topic, category, model) {
   console.log(chalk.blue(`\nGenerating article about "${topic}" in category "${category}"...`));
 
-  try {
-    const prompt = generatePrompt(topic, category);
+  // Customize the prompt based on category
+  let categorySpecificPrompt = '';
+  let sectionOrder = '';
+
+  if (category === 'neurodiversity') {
+    categorySpecificPrompt = `
+      Focus on:
+      - Celebrating neurodivergent strengths and perspectives
+      - Using identity-first language (e.g., "autistic person" rather than "person with autism") unless the individual prefers person-first language
+      - Emphasizing neurodiversity as a natural variation in human neurology
+      - Discussing accommodations and support strategies that respect neurodivergent needs
+      - Highlighting the importance of self-advocacy and community support
+      - Addressing common misconceptions and stereotypes
+      - Including perspectives from the neurodivergent community
+      
+      Important guidelines:
+      - Avoid pathologizing language
+      - Focus on strengths and challenges rather than deficits
+      - Emphasize the value of different neurotypes
+      - Include practical strategies for support and accommodation
+      - Address intersectionality with other identities
+      - Consider sensory needs and processing differences
+      - Discuss the importance of self-advocacy and community support
+    `;
+    sectionOrder = `
+      Structure the article in this order:
+      1. Introduction
+      2. Understanding the Topic
+      3. Key Characteristics and Experiences
+      4. Strengths and Challenges
+      5. Support and Accommodations
+      6. Practical Strategies
+      7. Community and Advocacy
+      8. Key Evidence
+      9. Practical Takeaways
+      10. References and Resources
+    `;
+  } else if (category === 'mental_health') {
+    // ... existing mental_health prompt ...
+  } else if (category === 'neuroscience') {
+    // ... existing neuroscience prompt ...
+  } else if (category === 'psychology') {
+    // ... existing psychology prompt ...
+  } else if (category === 'brain_health') {
+    // ... existing brain_health prompt ...
+  } else if (category === 'interventions') {
+    // ... existing interventions prompt ...
+  } else if (category === 'lifestyle_factors') {
+    // ... existing lifestyle_factors prompt ...
+  } else if (category === 'lab_testing') {
+    // ... existing lab_testing prompt ...
+  }
+
+  const prompt = `Generate a comprehensive article about ${topic} in the context of ${category}. 
+    ${categorySpecificPrompt}
+    ${sectionOrder}
     
+    The article should be informative, evidence-based, and accessible to a general audience.
+    Include practical takeaways and key evidence from research.
+    Format the response as a JSON object with the following structure:
+    {
+      "title": "string",
+      "slug": "string (URL-friendly version of the title)",
+      "summary": "string (2-3 sentences)",
+      "content": "string (full article content in markdown format)",
+      "key_evidence": "string (bullet points of key research findings)",
+      "practical_takeaways": "string (bullet points of practical advice)",
+      "references": "string (formatted references in markdown)",
+      "resources": "string (additional resources and links in markdown)"
+    }
+    
+    Ensure the content is well-structured with clear headings and subheadings in markdown format.
+    The content should be comprehensive but accessible, using clear language and explaining any technical terms.
+    Include relevant statistics and research findings where appropriate.
+    Make sure to include both references and resources sections at the end of the content.`;
+
+  try {
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
