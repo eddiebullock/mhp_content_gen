@@ -1,13 +1,16 @@
-import { spawn } from 'child_process';
 import { program } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 program
   .name('generate-multiple')
-  .description('Generate multiple articles in sequence')
-  .version('1.0.0')
+  .description('Generate multiple articles from a list of topics')
   .requiredOption('-t, --topics <string>', 'Comma-separated list of topics')
   .requiredOption('-c, --category <string>', 'Category for all articles')
   .option('-m, --model <string>', 'GPT model to use', 'gpt-4-turbo-preview')
@@ -15,8 +18,6 @@ program
   .parse(process.argv);
 
 const options = program.opts();
-
-// Split topics into array and trim whitespace
 const topics = options.topics.split(',').map(t => t.trim());
 
 async function generateMultipleArticles(topics, category, model) {
