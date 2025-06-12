@@ -46,12 +46,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 Generate a single article:
 ```bash
-npm start -- --topic "Anxiety Disorders" --category "mental_health" --model "gpt-4-turbo-preview"
+npm start -- --topic "Anxiety Disorders" --category "mental_health" --model "gpt-4o-mini"
 ```
 
 Generate multiple articles:
 ```bash
-npm run generate-multiple -- -t "Anxiety Disorders,Depression,OCD" -c "mental_health" -m "gpt-4-turbo-preview"
+npm run generate-multiple -- -t "Anxiety Disorders,Depression,OCD" -c "mental_health" -m "gpt-4o-mini"
 ```
 
 Update specific sections of existing articles:

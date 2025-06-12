@@ -403,13 +403,20 @@ async function main() {
       throw new Error(`Invalid category. Must be one of: ${validCategories.join(', ')}`);
     }
 
+    // Clear the output file first
+    const filePath = path.join(__dirname, '..', options.output);
+    await fs.writeFile(filePath, '[]');
+    console.log(chalk.blue('\nCleared existing articles from output file.'));
+
     // Generate the article
     const article = await generateArticle(options.topic, options.category, options.model);
     
-    // Read existing articles if file exists
+    // Set status to published by default
+    article.status = 'published';
+    
+    // Read existing articles (should be empty array after clearing)
     let articles = [];
     try {
-      const filePath = path.join(__dirname, '..', options.output);
       const existingContent = await fs.readFile(filePath, 'utf-8');
       articles = JSON.parse(existingContent);
       if (!Array.isArray(articles)) {
@@ -425,7 +432,6 @@ async function main() {
     articles.push(article);
 
     // Save updated articles
-    const filePath = path.join(__dirname, '..', options.output);
     await fs.writeFile(filePath, JSON.stringify(articles, null, 2));
 
     console.log(chalk.green('\nArticle generated successfully!'));

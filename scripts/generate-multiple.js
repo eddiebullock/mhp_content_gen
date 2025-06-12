@@ -1,6 +1,8 @@
 import { spawn } from 'child_process';
 import { program } from 'commander';
 import chalk from 'chalk';
+import path from 'path';
+import fs from 'fs/promises';
 
 program
   .name('generate-multiple')
@@ -17,66 +19,39 @@ const options = program.opts();
 // Split topics into array and trim whitespace
 const topics = options.topics.split(',').map(t => t.trim());
 
-console.log(chalk.blue(`\nGenerating ${topics.length} articles in the ${options.category} category...`));
-console.log(chalk.blue('Topics:'), topics.join(', '));
+async function generateMultipleArticles(topics, category, model) {
+  console.log(chalk.blue(`\nGenerating ${topics.length} articles in the ${category} category...`));
+  console.log(chalk.blue('Topics:', topics.join(', '), '\n'));
 
-async function generateArticle(topic) {
-  return new Promise((resolve, reject) => {
-    console.log(chalk.yellow(`\nGenerating article about "${topic}"...`));
-    
-    const args = [
-      'start',
-      '--',
-      '--topic', topic,
-      '--category', options.category,
-      '--model', options.model
-    ];
+  // Clear the output file first
+  const filePath = path.join(__dirname, '..', 'articles-data.json');
+  await fs.writeFile(filePath, '[]');
+  console.log(chalk.blue('Cleared existing articles from output file.'));
 
-    const child = spawn('npm', args, { stdio: 'inherit' });
-
-    child.on('close', (code) => {
-      if (code === 0) {
-        console.log(chalk.green(`\n✅ Successfully generated article about "${topic}"`));
-        resolve();
-      } else {
-        console.error(chalk.red(`\n❌ Failed to generate article about "${topic}"`));
-        reject(new Error(`Process exited with code ${code}`));
-      }
-    });
-
-    child.on('error', (err) => {
-      console.error(chalk.red(`\n❌ Error generating article about "${topic}":`), err);
-      reject(err);
-    });
-  });
-}
-
-async function generateAllArticles() {
-  let success = 0;
-  let failed = 0;
-
+  let successCount = 0;
   for (const topic of topics) {
     try {
-      await generateArticle(topic);
-      success++;
+      console.log(chalk.yellow(`\nGenerating article about "${topic}"...`));
       
-      // Add delay between articles if not the last one
+      // Run the generate-article script for each topic
+      const { execSync } = await import('child_process');
+      execSync(`node src/generate-article.js --topic "${topic}" --category "${category}" --model "${model}"`, { stdio: 'inherit' });
+      
+      successCount++;
+      
+      // Add a delay between articles to avoid rate limits
       if (topic !== topics[topics.length - 1]) {
-        console.log(chalk.blue(`\nWaiting ${options.delay} seconds before next article...`));
-        await new Promise(resolve => setTimeout(resolve, options.delay * 1000));
+        console.log(chalk.blue('\nWaiting 5 seconds before next article...'));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     } catch (error) {
-      failed++;
-      console.error(chalk.red(`\nError processing "${topic}":`), error.message);
+      console.error(chalk.red(`\nError generating article about "${topic}":`), error.message);
     }
   }
 
-  console.log(chalk.blue('\nGeneration complete:'));
-  console.log(chalk.green(`✅ Successfully generated: ${success} articles`));
-  if (failed > 0) {
-    console.log(chalk.red(`❌ Failed to generate: ${failed} articles`));
-  }
+  console.log(chalk.green('\nGeneration complete:'));
+  console.log(chalk.green(`✅ Successfully generated: ${successCount} articles`));
 }
 
 // Run the script
-generateAllArticles().catch(console.error); 
+generateMultipleArticles(topics, options.category, options.model).catch(console.error); 
