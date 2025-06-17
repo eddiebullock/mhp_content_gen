@@ -19,7 +19,8 @@
     "upload": "tsx src/bulk-upload.ts",
     "migrate": "node scripts/migrate-articles.js",
     "migrate-sql": "node scripts/run-migration-sql.js",
-    "migrate-simple": "node scripts/migrate-articles-simple.js"
+    "migrate-simple": "node scripts/migrate-articles-simple.js",
+    "update-reliability": "node scripts/update-reliability-scores.js"
   },
   "keywords": [
     "gpt",

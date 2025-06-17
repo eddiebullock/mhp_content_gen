@@ -157,4 +157,6 @@ npm test
 
 For licensing inquiries or support, please contact the copyright holder.
 
+Reliability Score = (Effect Size × 0.4) + (Study Quality × 0.3) + (Replication × 0.15) + (Sample Size × 0.15)
+
 
