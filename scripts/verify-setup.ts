@@ -70,7 +70,7 @@ async function verifySetup() {
                 causes_and_mechanisms: 'Test causes and mechanisms.',
                 symptoms_and_impact: 'Test symptoms and impact.',
                 evidence_summary: 'Test evidence summary.',
-                practical_takeaways: 'Test practical takeaways.',
+                practical_applications: 'Test practical applications.',
                 common_myths: 'Test common myths.',
                 future_directions: 'Test future directions.',
                 references_and_resources: 'Test references.'

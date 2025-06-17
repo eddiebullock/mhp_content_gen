@@ -36,8 +36,8 @@ interface BaseArticle {
     question: string;
     answer: string;
   }>;
-  key_evidence?: string;
-  practical_takeaways?: string;
+  evidence_summary?: string;
+  practical_applications?: string;
   content_blocks?: Record<string, string>;
 }
 
@@ -46,8 +46,6 @@ interface MentalHealthArticle extends BaseArticle {
   prevalence: string;
   causes_and_mechanisms: string;
   symptoms_and_impact: string;
-  evidence_summary: string;
-  practical_takeaways: string;
   common_myths: string;
 }
 
@@ -58,7 +56,6 @@ interface NeuroscienceArticle extends BaseArticle {
   relevance: string;
   key_studies: string;
   common_misconceptions: string;
-  practical_implications: string;
 }
 
 interface PsychologyArticle extends BaseArticle {
@@ -68,7 +65,6 @@ interface PsychologyArticle extends BaseArticle {
   relevance: string;
   key_studies_and_theories: string;
   common_misconceptions: string;
-  practical_applications: string;
 }
 
 interface NeurodiversityArticle extends BaseArticle {
@@ -77,20 +73,16 @@ interface NeurodiversityArticle extends BaseArticle {
   common_strengths_and_challenges: string;
   prevalence_and_demographics: string;
   mechanisms_and_understanding: string;
-  evidence_summary: string;
   common_misconceptions: string;
-  practical_takeaways: string;
   lived_experience: string;
 }
 
 interface InterventionArticle extends BaseArticle {
   category: 'interventions' | 'lifestyle_factors';
   how_it_works: string;
-  evidence_base: string;
-  effectiveness: string;
-  practical_applications: string;
   common_myths: string;
   risks_and_limitations: string;
+  reliability_score?: number;
 }
 
 interface LabTestingArticle extends BaseArticle {
@@ -104,39 +96,37 @@ interface LabTestingArticle extends BaseArticle {
 type Article = MentalHealthArticle | NeuroscienceArticle | PsychologyArticle | 
               NeurodiversityArticle | InterventionArticle | LabTestingArticle;
 
-// List of all possible content fields to be merged into content_blocks
+// Updated content fields for the new schema
 const ALL_CONTENT_FIELDS = [
   'overview',
+  'future_directions',
+  'references_and_resources',
+  'evidence_summary',
+  'practical_applications',
+  // Mental health specific
   'prevalence',
   'causes_and_mechanisms',
   'symptoms_and_impact',
-  'evidence_summary',
-  'practical_takeaways',
   'common_myths',
+  // Neuroscience/Psychology specific
   'definition',
   'mechanisms',
   'relevance',
   'key_studies',
-  'key_studies_and_theories',
-  'core_principles',
-  'practical_applications',
-  'practical_implications',
   'common_misconceptions',
+  // Neurodiversity specific
   'neurodiversity_perspective',
   'common_strengths_and_challenges',
   'prevalence_and_demographics',
   'mechanisms_and_understanding',
   'lived_experience',
+  // Intervention/Lifestyle specific
   'how_it_works',
-  'evidence_base',
-  'effectiveness',
   'risks_and_limitations',
-  'future_directions',
-  'references_and_resources',
+  'reliability_score',
+  // Lab testing specific
   'applications',
-  'strengths_and_limitations',
-  'key_evidence',
-  'practical_takeaways'
+  'strengths_and_limitations'
 ];
 
 // Validate article data

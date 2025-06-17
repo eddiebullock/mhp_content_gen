@@ -7,13 +7,19 @@
   "scripts": {
     "start": "node src/generate-article.js",
     "test": "node src/validate-article.js",
-    "verify": "node --loader ts-node/esm scripts/verify-setup.ts",
+    "verify": "tsx scripts/verify-setup.ts",
     "backfill": "node --loader ts-node/esm scripts/backfill-embeddings.ts",
     "bulk-upload": "ts-node --esm src/bulk-upload.ts",
     "generate-multiple": "node scripts/generate-multiple.js",
     "update-summaries": "node scripts/update-summaries.js",
     "update-content": "node scripts/update-content.js",
-    "update-db-summaries": "node scripts/update-db-summaries.js"
+    "update-db-summaries": "node scripts/update-db-summaries.js",
+    "generate": "node src/generate-article.js",
+    "validate": "node src/validate-articles.js",
+    "upload": "tsx src/bulk-upload.ts",
+    "migrate": "node scripts/migrate-articles.js",
+    "migrate-sql": "node scripts/run-migration-sql.js",
+    "migrate-simple": "node scripts/migrate-articles-simple.js"
   },
   "keywords": [
     "gpt",

@@ -24,8 +24,8 @@ const BaseArticleSchema = z.object({
     question: z.string(),
     answer: z.string()
   })).optional(),
-  key_evidence: z.string().describe('A single string containing key evidence points, formatted as a cohesive paragraph. Do not return as an array.'),
-  practical_takeaways: z.string().describe('A single string containing practical takeaways, formatted as a cohesive paragraph. Do not return as an array.')
+  evidence_summary: z.string().describe('A single string containing consolidated evidence from key_evidence, effectiveness, and evidence_base fields, formatted as a cohesive paragraph.'),
+  practical_applications: z.string().describe('A single string containing consolidated practical information from practical_takeaways and practical_applications fields, formatted as a cohesive paragraph.')
 });
 
 // Category-specific schemas
@@ -34,8 +34,6 @@ const MentalHealthArticleSchema = BaseArticleSchema.extend({
   prevalence: z.string().min(1),
   causes_and_mechanisms: z.string().min(1),
   symptoms_and_impact: z.string().min(1),
-  evidence_summary: z.string().min(1),
-  practical_takeaways: z.string().min(1),
   common_myths: z.string().min(1)
 });
 
@@ -45,8 +43,7 @@ const NeuroscienceArticleSchema = BaseArticleSchema.extend({
   mechanisms: z.string().min(1),
   relevance: z.string().min(1),
   key_studies: z.string().min(1),
-  common_misconceptions: z.string().min(1),
-  practical_implications: z.string().min(1)
+  common_misconceptions: z.string().min(1)
 });
 
 const NeurodiversityArticleSchema = BaseArticleSchema.extend({
@@ -55,20 +52,16 @@ const NeurodiversityArticleSchema = BaseArticleSchema.extend({
   common_strengths_and_challenges: z.string().min(1),
   prevalence_and_demographics: z.string().min(1),
   mechanisms_and_understanding: z.string().min(1),
-  evidence_summary: z.string().min(1),
   common_misconceptions: z.string().min(1),
-  practical_takeaways: z.string().min(1),
   lived_experience: z.string().min(1)
 });
 
 const InterventionArticleSchema = BaseArticleSchema.extend({
   category: z.enum(['interventions', 'lifestyle_factors']),
   how_it_works: z.string().min(1),
-  evidence_base: z.string().min(1),
-  effectiveness: z.string().min(1),
-  practical_applications: z.string().min(1),
   common_myths: z.string().min(1),
-  risks_and_limitations: z.string().min(1)
+  risks_and_limitations: z.string().min(1),
+  reliability_score: z.number().min(0).max(1).describe('Reliability score (0-1) based on effect sizes and replication frequency')
 });
 
 const LabTestingArticleSchema = BaseArticleSchema.extend({

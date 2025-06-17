@@ -85,11 +85,65 @@ Available categories:
 
 The tool generates a JSON file (`articles-data.json`) that matches the required schema for the Supabase database. The generated content includes:
 
-- Title and slug
-- Summary and overview
-- Category-specific content blocks
-- Tags and metadata
-- References and resources
+### Base Fields (All Categories)
+- `title`: Article title
+- `slug`: URL-friendly version of the title
+- `summary`: Brief overview (2-3 sentences)
+- `category`: Article category (mental_health, neuroscience, psychology, brain_health, neurodiversity, interventions, lifestyle_factors, lab_testing)
+- `overview`: Comprehensive introduction
+- `evidence_summary`: Consolidated evidence from key_evidence, effectiveness, and evidence_base fields
+- `practical_applications`: Consolidated practical information from practical_takeaways and practical_applications fields
+- `future_directions`: Emerging research and future developments
+- `references_and_resources`: Key references and further reading
+- `status`: Article status (published, draft, archived)
+- `tags`: Array of relevant tags
+
+### Category-Specific Fields
+
+#### Mental Health Articles
+- `prevalence`: Prevalence statistics and demographic information
+- `causes_and_mechanisms`: Biological and environmental causes
+- `symptoms_and_impact`: Symptoms and their impact on daily life
+- `common_myths`: Common misconceptions and myths
+
+#### Neuroscience/Psychology/Brain Health Articles
+- `definition`: Clear definition of the concept
+- `mechanisms`: Underlying mechanisms and processes
+- `relevance`: Relevance to everyday life
+- `key_studies`: Important research studies
+- `common_misconceptions`: Common misconceptions
+
+#### Neurodiversity Articles
+- `neurodiversity_perspective`: Neurodiversity paradigm and perspective
+- `common_strengths_and_challenges`: Strengths and challenges
+- `prevalence_and_demographics`: Prevalence and demographic information
+- `mechanisms_and_understanding`: Mechanisms and understanding
+- `common_misconceptions`: Common misconceptions
+- `lived_experience`: Lived experience perspectives
+
+#### Intervention/Lifestyle Articles
+- `how_it_works`: How the intervention or lifestyle factor works
+- `common_myths`: Common misconceptions
+- `risks_and_limitations`: Potential risks and limitations
+- `reliability_score`: Reliability score (0-1) based on effect sizes and replication frequency
+
+#### Lab Testing Articles
+- `how_it_works`: How the test works
+- `applications`: Applications and uses
+- `strengths_and_limitations`: Strengths and limitations
+- `risks_and_limitations`: Potential risks and limitations
+
+### Schema Changes (Latest Update)
+
+The schema has been updated to consolidate related fields and add reliability scoring:
+
+1. **Consolidated Evidence Fields**: `key_evidence`, `effectiveness`, and `evidence_base` are now combined into a single `evidence_summary` field
+2. **Consolidated Practical Fields**: `practical_takeaways` and `practical_applications` are now combined into a single `practical_applications` field
+3. **Reliability Scores**: Intervention and lifestyle articles now include a `reliability_score` (0-1) based on:
+   - Effect sizes (0.1-0.3 = small, 0.3-0.5 = medium, >0.5 = large)
+   - Number of studies/replications
+   - Quality of evidence (RCTs, meta-analyses, etc.)
+   - Consistency of findings across studies
 
 ## Validation
 

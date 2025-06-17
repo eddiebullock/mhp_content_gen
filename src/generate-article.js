@@ -139,47 +139,32 @@ function generatePrompt(topic, category) {
     .filter(([_, field]) => !field.isOptional())
     .map(([name]) => name);
 
-  const basePrompt = `Generate a comprehensive, evidence-based article about "${topic}" in the ${category} category.
+  const basePrompt = `
+Generate a comprehensive, evidence-based article about "${topic}" in the context of ${category}.
 
-# Writing Guidelines
+# Article Requirements
+- Write in a clear, accessible style for a general audience
+- Use scientific accuracy with Vancouver citation style [1]
+- Include practical, actionable insights
+- Address common misconceptions
+- Provide evidence-based recommendations
+- Use everyday examples and analogies
+- Avoid unnecessary jargon - explain technical terms
 
-## Summary Requirements
-- Start with a clear, direct definition of the topic
-- Focus on what the condition/topic IS, not what the article will cover
-- Avoid phrases like "This article explores..." or "We discuss..."
-- Keep it concise (2-3 sentences maximum)
-- Use active voice and present tense
-- Example good summary: "Obsessive-Compulsive Disorder (OCD) is a mental health condition characterized by persistent, unwanted thoughts (obsessions) and repetitive behaviors (compulsions). It affects approximately 1-2% of the population and can significantly impact daily functioning and quality of life."
-
-## Tone and Style
-- Write in clear, accessible language that a general audience can understand
-- Explain complex concepts using everyday examples and analogies
-- Avoid jargon - if technical terms are necessary, explain them in simple terms
-- Maintain scientific accuracy while being conversational and engaging
-- Use active voice and shorter sentences for better readability
-- Include in-text citations using Vancouver style (numerical references)
-- Back claims with high-quality evidence (meta-analyses, systematic reviews, or reputable studies)
-
-## Content Requirements
-- Break down complex ideas into digestible chunks
-- Use real-world examples to illustrate key points
-- Include practical tips and actionable advice
-- Address common misconceptions in simple terms
-- Provide comprehensive references
-- Ensure all required fields contain meaningful content
-- Write as if explaining to a friend who's interested in mental health but not a professional
-
-## Required Fields for ${category} Articles
+# Category-Specific Requirements
+${category} Articles
 The following fields are REQUIRED and must be included:
 ${requiredFields.map(field => `- ${field}`).join('\n')}
 
 ## Important Format Requirements
-- Use snake_case for all field names (e.g., practical_takeaways, key_evidence)
+- Use snake_case for all field names (e.g., practical_applications, evidence_summary)
 - ALL text fields must be returned as strings, NOT arrays
-- For key_evidence and practical_takeaways, combine multiple points into a single cohesive paragraph
+- For evidence_summary, combine key_evidence, effectiveness, and evidence_base into a single cohesive paragraph
+- For practical_applications, combine practical_takeaways and practical_applications into a single cohesive paragraph
 - Use proper paragraph formatting with complete sentences
 - Include transitions between ideas
 - Maintain consistent citation style throughout
+- For intervention and lifestyle categories, include a reliability_score (0-1) based on effect sizes and replication frequency
 
 ## Category-Specific Instructions
 ${getCategorySpecificInstructions(category)}
@@ -204,75 +189,114 @@ ${JSON.stringify(exampleArticle, null, 2)}
 9. Combine multiple points into cohesive paragraphs
 10. Use everyday examples and analogies to explain complex concepts
 11. Avoid unnecessary jargon - explain technical terms when used
-12. Write in a conversational, engaging style that's easy to understand`;
+12. Write in a conversational, engaging style that's easy to understand
+13. For intervention and lifestyle categories, calculate reliability_score based on:
+    - Effect sizes (0.1-0.3 = small, 0.3-0.5 = medium, >0.5 = large)
+    - Number of studies/replications
+    - Quality of evidence (RCTs, meta-analyses, etc.)
+    - Consistency of findings across studies`;
 
   return basePrompt;
 }
 
 // Helper function to get category-specific instructions
 function getCategorySpecificInstructions(category) {
-  const instructions = {
-    mental_health: `- Focus on evidence-based understanding of the condition
-- Include prevalence statistics and demographic information
-- Address both biological and psychosocial factors
-- Discuss evidence-based treatment approaches
-- Include information about risk factors and protective factors
-- Address common myths and misconceptions
-- Provide practical strategies for management and support`,
+  switch (category) {
+    case 'mental_health':
+      return `
+## Mental Health Articles
+Focus on understanding, prevalence, causes, symptoms, and evidence-based approaches.
+Required fields: overview, prevalence, causes_and_mechanisms, symptoms_and_impact, evidence_summary, practical_applications, common_myths, future_directions, references_and_resources
+- Provide clear definitions and prevalence statistics
+- Explain biological and environmental causes
+- Describe symptoms and their impact on daily life
+- Include evidence-based treatment approaches
+- Address common misconceptions
+- Offer practical coping strategies`;
 
-    neuroscience: `- Explain the underlying neural mechanisms
-- Include relevant neuroimaging and neurobiological research
-- Discuss implications for understanding brain function
-- Address both basic science and clinical applications
-- Include information about neuroplasticity where relevant
-- Discuss current research limitations and future directions
-- Provide practical implications for brain health`,
+    case 'neuroscience':
+      return `
+## Neuroscience Articles
+Focus on brain mechanisms, research findings, and scientific understanding.
+Required fields: overview, definition, mechanisms, relevance, key_studies, evidence_summary, practical_applications, common_misconceptions, future_directions, references_and_resources
+- Explain brain mechanisms clearly
+- Highlight key research studies
+- Connect neuroscience to everyday life
+- Address common misconceptions
+- Provide practical implications`;
 
-    psychology: `- Focus on psychological theories and research
-- Include key studies and theoretical frameworks
-- Address both cognitive and behavioral aspects
-- Discuss practical applications in daily life
-- Include information about assessment and measurement
-- Address cultural and individual differences
-- Provide evidence-based strategies for application`,
+    case 'psychology':
+      return `
+## Psychology Articles
+Focus on psychological principles, theories, and applications.
+Required fields: overview, definition, mechanisms, relevance, key_studies, evidence_summary, practical_applications, common_misconceptions, future_directions, references_and_resources
+- Explain psychological concepts clearly
+- Include key theories and research
+- Show practical applications
+- Address misconceptions
+- Provide evidence-based insights`;
 
-    neurodiversity: `- Emphasize the neurodiversity paradigm
-- Include perspectives from the neurodivergent community
-- Address both strengths and challenges
-- Discuss accommodations and support strategies
-- Include information about diagnosis and identification
-- Address common misconceptions and stereotypes
-- Provide practical approaches for support and inclusion
-- Ensure language is respectful and person-first
+    case 'brain_health':
+      return `
+## Brain Health Articles
+Focus on maintaining and optimizing brain function.
+Required fields: overview, definition, mechanisms, relevance, key_studies, evidence_summary, practical_applications, common_misconceptions, future_directions, references_and_resources
+- Explain brain health concepts
+- Include evidence-based strategies
+- Provide practical tips
+- Address common myths
+- Focus on prevention and optimization`;
+
+    case 'neurodiversity':
+      return `
+## Neurodiversity Articles
+Focus on neurodivergent perspectives, strengths, and support.
+Required fields: overview, neurodiversity_perspective, common_strengths_and_challenges, prevalence_and_demographics, mechanisms_and_understanding, evidence_summary, practical_applications, common_misconceptions, lived_experience, future_directions, references_and_resources
+- Emphasize neurodiversity as natural variation
+- Highlight strengths and challenges
 - Include lived experience perspectives
-- Address intersectionality and diverse experiences`,
+- Provide evidence-based support strategies
+- Address misconceptions respectfully
+- Focus on acceptance and accommodation`;
 
-    interventions: `- Focus on evidence-based interventions
-- Include information about effectiveness and limitations
-- Discuss practical implementation strategies
-- Address potential risks and contraindications
-- Include information about monitoring and evaluation
-- Discuss integration with other approaches
-- Provide clear guidelines for application`,
+    case 'interventions':
+      return `
+## Intervention Articles
+Focus on evidence-based interventions and their effectiveness.
+Required fields: overview, how_it_works, evidence_summary, practical_applications, common_myths, risks_and_limitations, reliability_score, future_directions, references_and_resources
+- Explain how the intervention works
+- Provide comprehensive evidence summary
+- Include practical application guidelines
+- Address risks and limitations
+- Include reliability score (0-1) based on effect sizes and replication
+- Focus on evidence-based approaches`;
 
-    lifestyle_factors: `- Focus on modifiable lifestyle factors
-- Include evidence for impact on mental health
-- Discuss practical implementation strategies
-- Address individual differences and preferences
-- Include information about monitoring and evaluation
-- Discuss integration with other approaches
-- Provide clear, actionable recommendations`,
+    case 'lifestyle_factors':
+      return `
+## Lifestyle Factors Articles
+Focus on lifestyle choices that impact mental health and brain function.
+Required fields: overview, how_it_works, evidence_summary, practical_applications, common_myths, risks_and_limitations, reliability_score, future_directions, references_and_resources
+- Explain the lifestyle factor's impact
+- Provide evidence-based recommendations
+- Include practical implementation tips
+- Address common misconceptions
+- Include reliability score (0-1) based on effect sizes and replication
+- Focus on sustainable changes`;
 
-    lab_testing: `- Focus on scientific validity and reliability
-- Include information about interpretation
-- Discuss limitations and appropriate use
-- Address ethical considerations
-- Include information about current research
-- Discuss integration with clinical assessment
-- Provide clear guidelines for application`
-  };
+    case 'lab_testing':
+      return `
+## Lab Testing Articles
+Focus on laboratory tests and their applications in mental health.
+Required fields: overview, how_it_works, applications, evidence_summary, practical_applications, strengths_and_limitations, risks_and_limitations, future_directions, references_and_resources
+- Explain how the test works
+- Describe applications and uses
+- Include evidence for effectiveness
+- Address limitations and risks
+- Provide practical guidance`;
 
-  return instructions[category] || 'Follow general writing guidelines for comprehensive, evidence-based content.';
+    default:
+      return '';
+  }
 }
 
 // Helper function to nest content fields under content_blocks
