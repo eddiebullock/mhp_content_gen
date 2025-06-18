@@ -20,7 +20,7 @@ console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 
 console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
 
 type ArticleCategory = 'mental_health' | 'neuroscience' | 'psychology' | 'brain_health' | 
-                      'neurodiversity' | 'interventions' | 'lifestyle_factors' | 'lab_testing';
+                      'neurodiversity' | 'interventions' | 'lifestyle_factors' | 'lab_testing' | 'risk_factors';
 
 interface BaseArticle {
   title: string;
@@ -93,8 +93,20 @@ interface LabTestingArticle extends BaseArticle {
   risks_and_limitations: string;
 }
 
+interface RiskFactorsArticle extends BaseArticle {
+  category: 'risk_factors';
+  overview: string;
+  prevalence: string;
+  mechanisms: string;
+  evidence_summary: string;
+  modifiable_factors: string;
+  protective_factors: string;
+  practical_takeaways: string;
+  reliability_score?: number;
+}
+
 type Article = MentalHealthArticle | NeuroscienceArticle | PsychologyArticle | 
-              NeurodiversityArticle | InterventionArticle | LabTestingArticle;
+              NeurodiversityArticle | InterventionArticle | LabTestingArticle | RiskFactorsArticle;
 
 // Updated content fields for the new schema
 const ALL_CONTENT_FIELDS = [
@@ -126,7 +138,12 @@ const ALL_CONTENT_FIELDS = [
   'reliability_score',
   // Lab testing specific
   'applications',
-  'strengths_and_limitations'
+  'strengths_and_limitations',
+  // Risk factors specific
+  'modifiable_factors',
+  'protective_factors',
+  'practical_takeaways',
+  'reliability_score'
 ];
 
 // Validate article data

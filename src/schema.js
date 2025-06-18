@@ -13,7 +13,8 @@ const BaseArticleSchema = z.object({
     'neurodiversity',
     'interventions',
     'lifestyle_factors',
-    'lab_testing'
+    'lab_testing',
+    'risk_factors'
   ]),
   overview: z.string().min(1),
   future_directions: z.string().min(1),
@@ -25,7 +26,7 @@ const BaseArticleSchema = z.object({
     answer: z.string()
   })).optional(),
   evidence_summary: z.string().describe('A single string containing consolidated evidence from key_evidence, effectiveness, and evidence_base fields, formatted as a cohesive paragraph.'),
-  practical_applications: z.string().describe('A single string containing consolidated practical information from practical_takeaways and practical_applications fields, formatted as a cohesive paragraph.')
+  practical_applications: z.string().optional().describe('A single string containing consolidated practical information from practical_takeaways and practical_applications fields, formatted as a cohesive paragraph.')
 });
 
 // Category-specific schemas
@@ -72,13 +73,26 @@ const LabTestingArticleSchema = BaseArticleSchema.extend({
   risks_and_limitations: z.string().min(1)
 });
 
+const RiskFactorsArticleSchema = BaseArticleSchema.extend({
+  category: z.literal('risk_factors'),
+  overview: z.string().min(1).describe('What the risk factor is'),
+  prevalence: z.string().min(1).describe('How common it is'),
+  mechanisms: z.string().min(1).describe('How it affects mental health'),
+  evidence_summary: z.string().min(1).describe('Research backing'),
+  modifiable_factors: z.string().min(1).describe('What can be changed'),
+  protective_factors: z.string().min(1).describe('What reduces risk'),
+  practical_takeaways: z.string().min(1).describe('Key points for users'),
+  reliability_score: z.number().min(0).max(1).describe('Reliability score (0-1) based on effect sizes and replication frequency')
+});
+
 // Combined schema for all article types
 export const ArticleSchema = z.discriminatedUnion('category', [
   MentalHealthArticleSchema,
   NeuroscienceArticleSchema,
   NeurodiversityArticleSchema,
   InterventionArticleSchema,
-  LabTestingArticleSchema
+  LabTestingArticleSchema,
+  RiskFactorsArticleSchema
 ]);
 
 // Helper function to validate an article
@@ -112,6 +126,8 @@ export function getSchemaForCategory(category) {
       return InterventionArticleSchema;
     case 'lab_testing':
       return LabTestingArticleSchema;
+    case 'risk_factors':
+      return RiskFactorsArticleSchema;
     default:
       throw new Error(`Invalid category: ${category}`);
   }

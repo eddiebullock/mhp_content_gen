@@ -13,11 +13,12 @@ program
   .description('Generate multiple articles from a list of topics')
   .requiredOption('-t, --topics <string>', 'Comma-separated list of topics')
   .requiredOption('-c, --category <string>', 'Category for all articles')
-  .option('-m, --model <string>', 'GPT model to use', 'gpt-4-turbo-preview')
+  .option('-m, --model <string>', 'GPT model to use (ignored, always uses gpt-4o-mini)', 'gpt-4o-mini')
   .parse(process.argv);
 
 const options = program.opts();
 const topics = options.topics.split(',').map(t => t.trim());
+const model = 'gpt-4o-mini';
 
 async function generateMultipleArticles(topics, category, model) {
   console.log(chalk.blue(`\nGenerating ${topics.length} articles in the ${category} category...`));
@@ -64,4 +65,4 @@ async function generateMultipleArticles(topics, category, model) {
 }
 
 // Run the script
-generateMultipleArticles(topics, options.category, options.model).catch(console.error); 
+generateMultipleArticles(topics, options.category, model).catch(console.error); 

@@ -29,11 +29,12 @@ program
   .requiredOption('-t, --topic <string>', 'The topic of the article')
   .requiredOption('-c, --category <string>', 'The category of the article')
   .option('-o, --output <string>', 'Output file path', 'articles-data.json')
-  .option('-m, --model <string>', 'GPT model to use', 'gpt-4-turbo-preview')
+  .option('-m, --model <string>', 'GPT model to use (ignored, always uses gpt-4o-mini)', 'gpt-4o-mini')
   .option('--no-clear', 'Skip clearing the output file (used when called from generate-multiple.js)')
   .parse(process.argv);
 
 const options = program.opts();
+const model = 'gpt-4o-mini'; // Always use gpt-4o-mini regardless of user input
 
 // Helper function to generate slug from title
 function generateSlug(title) {
@@ -86,6 +87,29 @@ const examplePsychologyArticle = {
   practical_takeaways: "Effective approaches to supporting cognitive development include: providing rich learning environments, engaging in interactive activities, and using developmentally appropriate teaching methods. Research emphasizes the importance of individual differences and the role of social interaction in cognitive growth."
 };
 
+// Example risk factors article
+const exampleRiskFactorsArticle = {
+  title: "Understanding Childhood Trauma as a Risk Factor",
+  slug: "understanding-childhood-trauma-risk-factor",
+  summary: "A comprehensive examination of childhood trauma as a significant risk factor for mental health conditions, including its prevalence, biological mechanisms, and evidence-based approaches to risk reduction and protective factors.",
+  category: "risk_factors",
+  overview: "Childhood trauma encompasses experiences of abuse, neglect, violence, or other adverse events that occur during critical developmental periods [1]. Research indicates that childhood trauma is one of the most significant risk factors for developing mental health conditions later in life, with effects that can persist across the lifespan [2].",
+  prevalence: "Studies estimate that approximately 60% of adults report experiencing at least one adverse childhood experience (ACE), with 25% reporting multiple ACEs [3]. The prevalence varies by demographic factors, with higher rates among certain populations and socioeconomic groups [4]. Research suggests that childhood trauma affects individuals across all backgrounds, though some groups may be more vulnerable due to systemic factors [5].",
+  mechanisms: "Childhood trauma affects mental health through multiple biological and psychological mechanisms. Neurobiological research shows that trauma can alter brain development, particularly in regions responsible for stress regulation, emotional processing, and executive function [6]. The hypothalamic-pituitary-adrenal (HPA) axis, which regulates stress responses, may become dysregulated, leading to increased vulnerability to stress-related conditions [7]. Additionally, trauma can affect the development of neural circuits involved in emotion regulation, social cognition, and threat detection [8].",
+  evidence_summary: "Meta-analyses of longitudinal studies demonstrate that childhood trauma significantly increases the risk of developing depression, anxiety, post-traumatic stress disorder, and other mental health conditions [9]. Research indicates a dose-response relationship, where greater exposure to trauma correlates with increased risk [10]. Studies have also identified specific biological markers associated with childhood trauma, including altered cortisol patterns, changes in brain structure and function, and epigenetic modifications [11]. The evidence base includes large-scale epidemiological studies, neuroimaging research, and intervention studies that demonstrate the long-term impact of early trauma [12].",
+  modifiable_factors: "Several factors can modify the impact of childhood trauma on mental health outcomes. Early intervention and trauma-informed care can significantly reduce the long-term effects of trauma [13]. Access to mental health services, particularly trauma-focused therapies like cognitive behavioral therapy and eye movement desensitization and reprocessing (EMDR), has been shown to be effective [14]. Building strong support networks, developing healthy coping mechanisms, and creating safe environments can help mitigate trauma's effects [15]. Additionally, addressing systemic factors such as poverty, discrimination, and lack of access to resources can reduce trauma exposure and improve outcomes [16].",
+  protective_factors: "Research identifies several protective factors that can buffer against the negative effects of childhood trauma. Strong, supportive relationships with caregivers, teachers, or mentors can provide emotional security and promote resilience [17]. Access to mental health services and early intervention programs can help address trauma-related symptoms before they become chronic [18]. Developing healthy coping strategies, such as mindfulness, exercise, and creative expression, can enhance emotional regulation and stress management [19]. Additionally, factors such as high self-esteem, optimism, and a sense of purpose can contribute to resilience in the face of adversity [20].",
+  practical_takeaways: "Understanding childhood trauma as a risk factor requires a comprehensive approach that addresses both prevention and intervention. Key strategies include: recognizing the signs of trauma in children and adults, providing trauma-informed care and support, advocating for policies that reduce trauma exposure, and promoting access to mental health services. It's important to remember that while childhood trauma is a significant risk factor, it doesn't determine outcomes - many individuals demonstrate remarkable resilience and recovery. Early identification and intervention can significantly improve long-term mental health outcomes, and building supportive environments can help prevent trauma exposure in the first place.",
+  reliability_score: 0.85,
+  references: "[1] Felitti, V. J., et al. (1998). Relationship of childhood abuse and household dysfunction to many of the leading causes of death in adults. American Journal of Preventive Medicine, 14(4), 245-258. [2] Teicher, M. H., & Samson, J. A. (2016). Annual research review: Enduring neurobiological effects of childhood abuse and neglect. Journal of Child Psychology and Psychiatry, 57(3), 241-266. [3] Merrick, M. T., et al. (2018). Prevalence of adverse childhood experiences from the 2011-2014 Behavioral Risk Factor Surveillance System in 23 states. JAMA Pediatrics, 172(11), 1038-1044. [4] Hughes, K., et al. (2017). The effect of multiple adverse childhood experiences on health: a systematic review and meta-analysis. The Lancet Public Health, 2(8), e356-e366. [5] Anda, R. F., et al. (2006). The enduring effects of abuse and related adverse experiences in childhood. European Archives of Psychiatry and Clinical Neuroscience, 256(3), 174-186. [6] Teicher, M. H., et al. (2003). The neurobiological consequences of early stress and childhood maltreatment. Neuroscience & Biobehavioral Reviews, 27(1-2), 33-44. [7] Heim, C., & Nemeroff, C. B. (2001). The role of childhood trauma in the neurobiology of mood and anxiety disorders: preclinical and clinical studies. Biological Psychiatry, 49(12), 1023-1039. [8] McCrory, E. J., et al. (2010). Research review: The neurobiology and genetics of maltreatment and adversity. Journal of Child Psychology and Psychiatry, 51(10), 1079-1095. [9] Norman, R. E., et al. (2012). The long-term health consequences of child physical abuse, emotional abuse, and neglect: a systematic review and meta-analysis. PLoS Medicine, 9(11), e1001349. [10] Anda, R. F., et al. (2006). The enduring effects of abuse and related adverse experiences in childhood. European Archives of Psychiatry and Clinical Neuroscience, 256(3), 174-186. [11] Teicher, M. H., & Samson, J. A. (2016). Annual research review: Enduring neurobiological effects of childhood abuse and neglect. Journal of Child Psychology and Psychiatry, 57(3), 241-266. [12] McLaughlin, K. A., et al. (2012). Childhood adversities and first onset of psychiatric disorders in a national sample of US adolescents. Archives of General Psychiatry, 69(11), 1151-1160. [13] Cohen, J. A., et al. (2012). Trauma-focused CBT for children with co-occurring trauma and behavior problems. Child Abuse & Neglect, 36(4), 321-332. [14] Shapiro, F. (2014). The role of eye movement desensitization and reprocessing (EMDR) therapy in medicine: addressing the psychological and physical symptoms stemming from adverse life experiences. The Permanente Journal, 18(1), 71-77. [15] Masten, A. S. (2001). Ordinary magic: Resilience processes in development. American Psychologist, 56(3), 227-238. [16] Shonkoff, J. P., et al. (2012). The lifelong effects of early childhood adversity and toxic stress. Pediatrics, 129(1), e232-e246. [17] Werner, E. E. (2013). What can we learn about resilience from large-scale longitudinal studies? In S. Goldstein & R. B. Brooks (Eds.), Handbook of resilience in children (pp. 87-102). Springer. [18] Cohen, J. A., & Mannarino, A. P. (2008). Trauma-focused cognitive behavioural therapy for children and parents. Child and Adolescent Mental Health, 13(4), 158-162. [19] Southwick, S. M., & Charney, D. S. (2012). The science of resilience: implications for the prevention and treatment of depression. Science, 338(6103), 79-82. [20] Masten, A. S., & Narayan, A. J. (2012). Child development in the context of disaster, war, and terrorism: Pathways of risk and resilience. Annual Review of Psychology, 63, 227-257. [21] van der Kolk, B. A. (2014). The body keeps the score: Brain, mind, and body in the healing of trauma. Viking. [22] Bethell, C. D., et al. (2017). Methods to assess adverse childhood experiences of children and families: toward approaches to promote child well-being in policy and practice. Academic Pediatrics, 17(7), S51-S69.",
+  future_directions: "Emerging research focuses on developing more effective early intervention strategies, understanding individual differences in trauma response, and identifying novel therapeutic approaches. Studies are exploring the role of neuroplasticity in trauma recovery, the potential of pharmacological interventions, and the development of personalized treatment approaches [21]. Research is also examining the impact of systemic factors and developing community-based prevention programs [22].",
+  references_and_resources: "[1] Felitti, V. J., et al. (1998). Relationship of childhood abuse and household dysfunction to many of the leading causes of death in adults. American Journal of Preventive Medicine, 14(4), 245-258. [2] Teicher, M. H., & Samson, J. A. (2016). Annual research review: Enduring neurobiological effects of childhood abuse and neglect. Journal of Child Psychology and Psychiatry, 57(3), 241-266. [3] Merrick, M. T., et al. (2018). Prevalence of adverse childhood experiences from the 2011-2014 Behavioral Risk Factor Surveillance System in 23 states. JAMA Pediatrics, 172(11), 1038-1044. [4] Hughes, K., et al. (2017). The effect of multiple adverse childhood experiences on health: a systematic review and meta-analysis. The Lancet Public Health, 2(8), e356-e366. [5] Anda, R. F., et al. (2006). The enduring effects of abuse and related adverse experiences in childhood. European Archives of Psychiatry and Clinical Neuroscience, 256(3), 174-186. [6] Teicher, M. H., et al. (2003). The neurobiological consequences of early stress and childhood maltreatment. Neuroscience & Biobehavioral Reviews, 27(1-2), 33-44. [7] Heim, C., & Nemeroff, C. B. (2001). The role of childhood trauma in the neurobiology of mood and anxiety disorders: preclinical and clinical studies. Biological Psychiatry, 49(12), 1023-1039. [8] McCrory, E. J., et al. (2010). Research review: The neurobiology and genetics of maltreatment and adversity. Journal of Child Psychology and Psychiatry, 51(10), 1079-1095. [9] Norman, R. E., et al. (2012). The long-term health consequences of child physical abuse, emotional abuse, and neglect: a systematic review and meta-analysis. PLoS Medicine, 9(11), e1001349. [10] Anda, R. F., et al. (2006). The enduring effects of abuse and related adverse experiences in childhood. European Archives of Psychiatry and Clinical Neuroscience, 256(3), 174-186. [11] Teicher, M. H., & Samson, J. A. (2016). Annual research review: Enduring neurobiological effects of childhood abuse and neglect. Journal of Child Psychology and Psychiatry, 57(3), 241-266. [12] McLaughlin, K. A., et al. (2012). Childhood adversities and first onset of psychiatric disorders in a national sample of US adolescents. Archives of General Psychiatry, 69(11), 1151-1160. [13] Cohen, J. A., et al. (2012). Trauma-focused CBT for children with co-occurring trauma and behavior problems. Child Abuse & Neglect, 36(4), 321-332. [14] Shapiro, F. (2014). The role of eye movement desensitization and reprocessing (EMDR) therapy in medicine: addressing the psychological and physical symptoms stemming from adverse life experiences. The Permanente Journal, 18(1), 71-77. [15] Masten, A. S. (2001). Ordinary magic: Resilience processes in development. American Psychologist, 56(3), 227-238. [16] Shonkoff, J. P., et al. (2012). The lifelong effects of early childhood adversity and toxic stress. Pediatrics, 129(1), e232-e246. [17] Werner, E. E. (2013). What can we learn about resilience from large-scale longitudinal studies? In S. Goldstein & R. B. Brooks (Eds.), Handbook of resilience in children (pp. 87-102). Springer. [18] Cohen, J. A., & Mannarino, A. P. (2008). Trauma-focused cognitive behavioural therapy for children and parents. Child and Adolescent Mental Health, 13(4), 158-162. [19] Southwick, S. M., & Charney, D. S. (2012). The science of resilience: implications for the prevention and treatment of depression. Science, 338(6103), 79-82. [20] Masten, A. S., & Narayan, A. J. (2012). Child development in the context of disaster, war, and terrorism: Pathways of risk and resilience. Annual Review of Psychology, 63, 227-257. [21] van der Kolk, B. A. (2014). The body keeps the score: Brain, mind, and body in the healing of trauma. Viking. [22] Bethell, C. D., et al. (2017). Methods to assess adverse childhood experiences of children and families: toward approaches to promote child well-being in policy and practice. Academic Pediatrics, 17(7), S51-S69.",
+  status: "draft",
+  tags: ["childhood trauma", "risk factors", "mental health", "adverse childhood experiences", "resilience", "trauma-informed care"],
+  key_evidence: "Meta-analyses demonstrate that childhood trauma increases the risk of mental health conditions by 2-4 times [9]. Neuroimaging studies show structural and functional brain changes in trauma-exposed individuals [6]. Longitudinal studies reveal dose-response relationships between trauma exposure and mental health outcomes [10]. Intervention research shows that trauma-focused therapies can significantly improve outcomes [13].",
+  practical_takeaways: "Key strategies for addressing childhood trauma include: early identification and intervention, trauma-informed care approaches, building supportive relationships, developing healthy coping mechanisms, and advocating for systemic changes that reduce trauma exposure. Remember that resilience is possible and many individuals demonstrate remarkable recovery with appropriate support."
+};
+
 // Helper function to process GPT response
 function processArticleResponse(article) {
   console.log(chalk.yellow('\nDebug: Original article format:'));
@@ -124,6 +148,8 @@ function getExampleArticle(category) {
       return examplePsychologyArticle;
     case 'neurodiversity':
       return exampleArticle;
+    case 'risk_factors':
+      return exampleRiskFactorsArticle;
     default:
       return exampleArticle; // Default to neurodiversity example
   }
@@ -293,6 +319,39 @@ Required fields: overview, how_it_works, applications, evidence_summary, practic
 - Include evidence for effectiveness
 - Address limitations and risks
 - Provide practical guidance`;
+
+    case 'risk_factors':
+      return `
+## Risk Factors Articles
+Focus on factors that increase risk for mental health conditions and how to address them.
+Required fields: overview, prevalence, mechanisms, evidence_summary, modifiable_factors, protective_factors, practical_takeaways, reliability_score, future_directions, references_and_resources
+
+### Content Block Structure (MUST follow this exact structure):
+1. **overview** - What the risk factor is
+2. **prevalence** - How common it is
+3. **mechanisms** - How it affects mental health
+4. **evidence_summary** - Research backing
+5. **modifiable_factors** - What can be changed
+6. **protective_factors** - What reduces risk
+7. **practical_takeaways** - Key points for users
+8. **reliability_score** - Reliability score (0-1) based on effect sizes and replication frequency
+
+- Explain the risk factor clearly and comprehensively
+- Provide accurate prevalence statistics
+- Describe biological and psychological mechanisms
+- Include robust research evidence
+- Focus on modifiable factors that can be addressed
+- Highlight protective factors and resilience
+- Provide actionable, evidence-based recommendations
+- Use clear, accessible language while maintaining scientific accuracy
+- Include practical strategies for risk reduction
+- Address common misconceptions about the risk factor
+- Include proper academic references in Vancouver citation style
+- Calculate reliability_score (0-1) based on:
+  - Effect sizes (0.1-0.3 = small, 0.3-0.5 = medium, >0.5 = large)
+  - Number of studies/replications
+  - Quality of evidence (RCTs, meta-analyses, etc.)
+  - Consistency of findings across studies`;
 
     default:
       return '';
@@ -530,7 +589,7 @@ async function main() {
     // Validate category
     const validCategories = [
       'mental_health', 'neuroscience', 'psychology', 'brain_health',
-      'neurodiversity', 'interventions', 'lifestyle_factors', 'lab_testing'
+      'neurodiversity', 'interventions', 'lifestyle_factors', 'lab_testing', 'risk_factors'
     ];
     
     if (!validCategories.includes(options.category)) {
@@ -546,7 +605,7 @@ async function main() {
     }
 
     // Generate the article
-    const article = await generateArticle(options.topic, options.category, options.model);
+    const article = await generateArticle(options.topic, options.category, model);
     
     // Set status to published by default
     article.status = 'published';

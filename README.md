@@ -80,6 +80,7 @@ Available categories:
 - interventions
 - lifestyle_factors
 - lab_testing
+- risk_factors
 
 ## Output
 
@@ -132,6 +133,15 @@ The tool generates a JSON file (`articles-data.json`) that matches the required 
 - `applications`: Applications and uses
 - `strengths_and_limitations`: Strengths and limitations
 - `risks_and_limitations`: Potential risks and limitations
+
+#### Risk Factors Articles
+- `overview`: What the risk factor is
+- `prevalence`: How common it is
+- `mechanisms`: How it affects mental health
+- `evidence_summary`: Research backing
+- `modifiable_factors`: What can be changed
+- `protective_factors`: What reduces risk
+- `practical_takeaways`: Key points for users
 
 ### Schema Changes (Latest Update)
 

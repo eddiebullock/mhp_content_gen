@@ -11,6 +11,7 @@
     "backfill": "node --loader ts-node/esm scripts/backfill-embeddings.ts",
     "bulk-upload": "ts-node --esm src/bulk-upload.ts",
     "generate-multiple": "node scripts/generate-multiple.js",
+    "generate-risk-factors": "node scripts/generate-risk-factors.js",
     "update-summaries": "node scripts/update-summaries.js",
     "update-content": "node scripts/update-content.js",
     "update-db-summaries": "node scripts/update-db-summaries.js",
